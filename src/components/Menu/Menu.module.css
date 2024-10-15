@@ -1,0 +1,38 @@
+.navegacao {
+    height: 112px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    column-gap: 3rem;
+}
+
+.container_header{
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    margin: 0 20rem 2rem 20rem;
+}
+
+.logo_header{
+    max-width: 10rem;
+}
+
+
+@media (max-width: 744px) {
+
+    .container_header{
+        display: flex;
+        justify-content: space-evenly;
+        align-items: center;
+        margin: auto;
+   
+    }
+
+    .logo_header{
+        max-width: 7rem;
+    }
+
+    .navegacao {
+        height: 72px;
+    }
+}
