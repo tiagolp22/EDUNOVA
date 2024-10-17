@@ -1,5 +1,5 @@
 
-![EduNova logo ](src/assets/imgs/EduNova_logo.gif)
+![EduNova logo](src/assets/imgs/EduNova_logo.gif)
 
 An innovative platform for hosting and managing online courses, with a focus on seamless user experience and robust functionality.
 
