@@ -1,28 +1,70 @@
-# Visible Mending Course Platform
+# EduNova
 
-## Description
+An innovative platform for hosting and managing online courses, with a focus on seamless user experience and robust functionality.
 
-This project is an online platform for the **Visible Mending** course, developed using **React**. The platform acts as an extension of the main website (www.claraquintela.com), where users can access the course if they have purchased it. If they haven't bought the course, they will be redirected to the purchase page.
+## Project Overview
+
+EduNova aims to revolutionize online learning by providing a robust and user-friendly platform. It empowers educators to create and manage courses, while offering students an immersive environment to enroll, access course materials, and track their progress.
+
+## Team
+
+- Clara Quintela: Front-end Development
+- Tiago Barros Cavalcanti: Database and Back-end Development
 
 ## Features
 
-- **User Authentication**: Verifies if the course has been purchased.
-- **Automatic Redirection**: Redirects users to either the course platform or the purchase page based on their purchase status.
-- **Responsive Design**: Adapted for desktop, tablet, and mobile devices.
-- **Course Material**: Supports video lessons and course materials display.
-- **Intuitive Navigation**: Easy-to-use interface with reusable React components.
+- **User Authentication and Authorization**: Verifies user identity and course purchase status.
+- **Automatic Redirection**: Directs users to the course platform or purchase page based on their access rights.
+- **Course Creation and Management**: Tools for educators to design and organize course content.
+- **Student Enrollment System**: Streamlined process for students to join courses.
+- **Interactive Lesson Modules**: Engaging content delivery methods.
+- **Progress Tracking**: Allows students to monitor their advancement through course material.
+- **Discussion Forums**: Facilitates community interaction and peer-to-peer learning.
+- **Quizzes and Assessments**: Tools to evaluate student understanding and retention.
+- **Responsive Design**: Optimized for desktop, tablet, and mobile devices.
+- **Course Material Support**: Accommodates various content types, including video lessons and downloadable resources.
+- **Intuitive Navigation**: User-friendly interface with reusable React components.
 
-## Technologies Used
+## Tech Stack
 
-- **React**: JavaScript library for building user interfaces.
-- **CSS Modules**: For modular, scoped styling.
-- **React Router**: For route management and navigation between pages.
-- **Node.js**: For backend API interactions (if applicable).
-- **Webpack**: Module bundler to handle assets and optimize the application.
+### Front-end
+
+- React.js
+- Tailwind CSS
+- CSS Modules (for modular, scoped styling)
+- React Router (for route management and navigation)
+
+### Back-end
+
+- Node.js
+
+### Database
+
+- SQLite
+
+### Build Tools
+
+- Webpack (for module bundling and asset optimization)
+
+## Getting Started
+
+Coming soon
 
 ## Usage
 
-- Users can click on the **Visible Mending** course link from the main website.
-- If the user has purchased the course, they will be redirected to the platform where they can access the course content.
-- If the user hasn't purchased the course, they will be redirected to the purchase page.
-- The platform includes video lessons, text content, and other course materials.
+1. Users access the EduNova platform through the URL (to be determined).
+2. Upon selecting a course in the main page:
+   - Authenticated users with course access are directed to the course content.
+   - Users without course access are redirected to the purchase page.
+3. Within the course platform, users can:
+   - Watch video lessons
+   - Read text content
+   - Access additional course materials
+   - Track their progress through the course
+
+## Contact
+
+For any queries regarding EduNova, please contact:
+
+- Clara Quintela (Front-end): clara@claraquintela.com
+- Tiago Barros Cavalcanti (Back-end & DB): tiagobarroscavalcanti@gmail.com
