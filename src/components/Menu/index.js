@@ -28,7 +28,7 @@ export default function Menu() {
               />
             </button>
           </div>
-          <div className=" toggle hidden w-full md:w-auto md:flex text-[--amarelo] text-right text-bold mt-5 md:mt-0 md:border-none">
+          <div className=" toggle hidden w-full md:w-auto md:flex text-[--amarelo] text-right text-bold mt-3 md:mt-0 md:border-none">
             <NavLink
               to="/"
               className="block md:inline-block hover:text-blue-500 px-3 py-3 md:border-none"
