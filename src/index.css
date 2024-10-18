@@ -10,14 +10,15 @@
 
 :root {
   --azul-escuro: #041833;
-  --azul-medio: #1875E8;
+  --azul-medio: #446ca2;
   --cor-fonte-principal: #041833;
   --cor-fonte-post: #444444;
   --branco: #FFF;
-  --fonte-principal: 'Raleway', sans-serif;
-  --fonte-secundaria: 'Playfair Display', sans-serif;
+  --amarelo: #e2a315;
+  --fonte-principal: 'Roboto', sans-serif;
+  --fonte-secundaria: 'Roboto', sans-serif;
 
-  font-family: var(--fonte-principal);
+  font-family: var(--fonte-secundaria);
 }
 
 #root {
@@ -45,6 +46,10 @@ li {
 }
 
 h1, h2, h3 {
-  font-weight: 700;
-  line-height: 5rem;
+  font-weight: 800;
+  font-family: var(--fonte-principal);
+}
+
+h1{
+ font-size: 4rem;
 }
