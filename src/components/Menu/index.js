@@ -5,7 +5,7 @@ import { Link, NavLink } from "react-router-dom";
 export default function Menu() {
   return (
     <header>
-      <div classNameName={styles.container_header}>
+     
         <nav className="flex flex-wrap items-center justify-between p-3 bg-[--azul-escuro]">
           <div className="text-xl">
             <Link to="/">
@@ -71,7 +71,7 @@ export default function Menu() {
             </NavLink>
           </div>
         </nav>
-      </div>
+      
     </header>
   );
 }
