@@ -1,30 +1,25 @@
-import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import bannerEN from "assets/imgs/edunova_bannerEN.jpg";
-import bannerPT from "assets/imgs/edunova_bannerPT.jpg";
+import styles from"./Banner.module.css";
+import banner from "assets/imgs/edunova_banner.png";
 
 export default function Banner({ t }) {
-  const [currentBanner, setCurrentBanner] = useState(bannerPT);
-
-  useEffect(() => {
-    const chosenLanguage = localStorage.getItem("chosenLanguage");
-    setCurrentBanner(chosenLanguage === "en" ? bannerEN : bannerPT);
-  }, []);
-
   return (
-    <div className="relative w-full h-[320px] sm:h-auto" id="home">
+    <div className={styles.hero_banner}>
       <img
-        src={currentBanner}
-        alt={t("bannerAltText", "Edunova banner")}
+        src={banner}
+        alt="Edunova banner"
         className="w-full h-full object-cover object-center"
       />
-      <div className="absolute inset-x-14 top-24 sm:bottom-[60%] md:top-60 flex flex-col md:flex-row items-start justify-between">
-        <div className="md:w-1/2">
+      <div className={styles.hero_content}>
+        <div className={styles.hero_content_block}>
+          <h1>{t("hero1")}</h1>
+          <h1>{t("hero2")}</h1>
+          <h1>{t("hero3")}</h1>
           <Link
             to="/about"
             className="inline-block px-4 py-2 sm:px-5 sm:py-2.5 md:px-6 md:py-3 bg-[--azul-medio] text-white text-[2vw] sm:text-[1.8vw] md:text-[1.5vw] font-medium rounded-full hover:bg-[--amarelo] transition duration-200"
           >
-            {t("contactUs", "Contact Us")}
+            {t("btn_aboutUs")}
           </Link>
         </div>
       </div>
