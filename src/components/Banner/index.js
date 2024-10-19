@@ -12,12 +12,16 @@ export default function Banner({ t }) {
       />
       <div className={styles.hero_content}>
         <div className={styles.hero_content_block}>
-          <h1>{t("hero1")}</h1>
-          <h1>{t("hero2")}</h1>
-          <h1>{t("hero3")}</h1>
+
+          <div className={styles.hero_title}>
+            <h1>{t("hero1")}</h1>
+            <h1>{t("hero2")}</h1>
+            <h1>{t("hero3")}</h1>
+          </div>
+
           <Link
             to="/about"
-            className="inline-block px-4 py-2 sm:px-5 sm:py-2.5 md:px-6 md:py-3 bg-[--azul-medio] text-white text-[2vw] sm:text-[1.8vw] md:text-[1.5vw] font-medium rounded-full hover:bg-[--amarelo] transition duration-200"
+            className={styles.hero_button}
           >
             {t("btn_aboutUs")}
           </Link>
