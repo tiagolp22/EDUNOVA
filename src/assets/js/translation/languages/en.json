@@ -1,6 +1,10 @@
 {
     "translation": {
     
-        "hero" : "Your learning, at your pace, anywhere"
+        "hero1" : "Your learning,",
+        "hero2" : "at your pace,",
+        "hero3" : "anywhere",
+
+        "btn_aboutUs": "About us"
     } 
 }
