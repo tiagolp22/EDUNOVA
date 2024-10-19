@@ -36,17 +36,11 @@ function App() {
     return <div>Loading translations...</div>;
   }
 
-  const btnTranslation = lngs
-    .filter((lng) => lng.code !== language)
-    .map((lng, i) => (
-      <Button key={"langue_" + i} onClick={() => handleTrans(lng.code)}>
-        {lng.native}
-      </Button>
-    ));
+
 
   return (
     <BrowserRouter>
-      <Menu btnTranslation={btnTranslation }/>
+      <Menu  t={t}  handleTrans={ handleTrans} language={language}/>
       <Routes>
         <Route path="/" element={<Home t={t} />} />
         <Route path="/about" element={<About />} />
