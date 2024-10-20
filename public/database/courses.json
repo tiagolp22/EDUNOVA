@@ -1,0 +1,35 @@
+[
+    {
+        "id": 1,
+        "title": "{\"en\":\"Sewing: from zero to hero\", \"pt\":\"Costura para quem nunca costurou\"}",
+        "subtitle": "{\"en\":\"Subtitle of course 1\", \"pt\":\"Subtítulo do curso 1\"}",
+        "descriptiom": "{\"en\":\"This is a little description of course 1, a wonderful course about blablabla.\", \"pt\":\"Esse é uma pequena descrição sobre o incrível curso 1, que vai te ensinar tudo sobre blablabla.\"}",
+        "price": 99,
+        "video": "",
+        "image": "sewing1_mockup.jpg",
+        "category": 1,
+        "status": 1
+    },
+    {
+        "id": 2,
+        "title": "{\"en\":\"Knitting for beginners\", \"pt\":\"Tricô para iniciantes\"}",
+        "subtitle": "{\"en\":\"Subtitle of course 2\", \"pt\":\"Subtítulo do curso 2\"}",
+        "descriptiom": "{\"en\":\"This is a little description of course 2, a wonderful course about blablabla.\", \"pt\":\"Esse é uma pequena descrição sobre o incrível curso 2, que vai te ensinar tudo sobre blablabla.\"}",
+        "price": 99,
+        "video": "",
+        "image": "knitting1_mockup.jpg",
+        "category": 2,
+        "status": 1
+    },
+    {
+        "id": 3,
+        "title": "{\"en\":\"Learn meditation\", \"pt\":\"Aprenda a meditar\"}",
+        "subtitle": "{\"en\":\"Subtitle of course 3\", \"pt\":\"Subtítulo do curso 3\"}",
+        "descriptiom": "{\"en\":\"This is a little description of course 3, a wonderful course about blablabla.\", \"pt\":\"Esse é uma pequena descrição sobre o incrível curso 3, que vai te ensinar tudo sobre blablabla.\"}",
+        "price": 99,
+        "video": "",
+        "image": "meditation1_mockup.jpg",
+        "categoria": 3,
+        "status": 1
+    }
+]

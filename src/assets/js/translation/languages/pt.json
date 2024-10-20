@@ -4,7 +4,10 @@
         "hero1" : "Seu aprendizado,",
         "hero2" : "no seu ritmo,",
         "hero3" : "em qualquer lugar",
+        "home_catalogue_title" : "Confira os cursos disponíveis",
 
-        "btn_aboutUs": "Sobre nós"
+
+        "btn_aboutUs": "Sobre nós",
+        "btn_info": " + info"
     } 
 }

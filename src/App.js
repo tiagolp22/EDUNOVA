@@ -6,6 +6,7 @@ import About from "pages/About";
 import Menu from "components/Menu";
 import Button from "components/Button/Button";
 import Banner from "components/Banner";
+import CourseShowById from "pages/Courses/CourseShowById";
 
 const lngs = [
   { code: "en", native: "EN" },
@@ -36,15 +37,15 @@ function App() {
     return <div>Loading translations...</div>;
   }
 
-
-
   return (
     <BrowserRouter>
-      <Menu  t={t}  handleTrans={ handleTrans} language={language}/>
+      <Menu t={t} handleTrans={handleTrans} language={language} />
       <Routes>
-        <Route path="/" element={<Home t={t} />} />
+        <Route path="/" element={<Home t={t} language={language} />} />
         <Route path="/about" element={<About />} />
         <Route path="*" element={<div>page not found</div>} />
+
+        <Route path="/course/:id" element={<CourseShowById t={t} />} />
       </Routes>
     </BrowserRouter>
   );
