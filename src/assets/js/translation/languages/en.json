@@ -4,7 +4,12 @@
         "hero1" : "Your learning,",
         "hero2" : "at your pace,",
         "hero3" : "anywhere",
+        "home_catalogue_title" : "Our courses",
 
-        "btn_aboutUs": "About us"
+        "btn_aboutUs": "About us",
+        "btn_delete": "Delete",
+        "btn_edit": "Edit",
+        "btn_update": "Update"
+
     } 
 }

@@ -1,0 +1,12 @@
+{ 
+    "categories" :[
+        {
+            "id": 1,
+            "category": "{\"en\":\"Draft\", \"pt\":\"Rascunho\"}"
+        },
+        {
+            "id": 2,
+            "category": "{\"en\":\"Published\", \"pt\":\"Publicado\"}"
+        }
+    ]
+}

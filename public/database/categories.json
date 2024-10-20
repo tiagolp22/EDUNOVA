@@ -1,0 +1,16 @@
+[
+  
+    {
+         "id": 1,
+        "category": "{\"en\":\"Sewing\", \"pt\":\"Costura\"}"
+    },
+    {
+        "id": 2,
+        "category": "{\"en\":\"Knitting\", \"pt\":\"Tricot\"}"
+    },
+    {
+        "id": 3,
+        "category": "{\"en\":\"Well being\", \"pt\":\"Bem estar\"}"
+    }
+    
+]
