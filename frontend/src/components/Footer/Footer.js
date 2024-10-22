@@ -8,48 +8,11 @@ export default function Footer() {
           <div className="-mx-4 flex flex-wrap justify-between">
             <div className="px-4 my-4 w-full xl:w-1/5">
               <Link to="/" className="block w-56 mb-10">
-                <svg
-                  version="1.1"
-                  viewBox="0 0 3368 512"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <g fill="none" fill-rule="evenodd">
-                    <g transform="translate(0 -75)">
-                      <g transform="translate(0 75)">
-                        <rect
-                          width="512"
-                          height="512"
-                          rx="128"
-                          fill="#3D5AFE"
-                        ></rect>
-                        <rect
-                          x="149"
-                          y="176"
-                          width="220"
-                          height="220"
-                          fill="#fff"
-                        ></rect>
-                        <circle cx="259" cy="156" r="40" fill="#fff"></circle>
-                        <circle
-                          cx="369"
-                          cy="286"
-                          r="40"
-                          fill="#2962FF"
-                        ></circle>
-                      </g>
-                      <text
-                        fill="white"
-                        font-family="Nunito-Bold, Nunito"
-                        font-size="512"
-                        font-weight="bold"
-                      >
-                        <tspan x="654" y="518">
-                          Tailwindow
-                        </tspan>
-                      </text>
-                    </g>
-                  </g>
-                </svg>
+                <h2 className="inline-block text-2xl">
+                  <tspan x="654" y="518">
+                    EduNova
+                  </tspan>
+                </h2>
               </Link>
               <p className="text-justify">
                 Tailwindow is a collection of UI Components created using
@@ -196,15 +159,7 @@ export default function Footer() {
         <div className="container mx-auto px-4">
           <div className="-mx-4 flex flex-wrap justify-between">
             <div className="px-4 w-full text-center sm:w-auto sm:text-left">
-              Copyright © 2020
-              <script>
-                new Date().getFullYear() 2020 && document.write("- " + new
-                Date().getFullYear())
-              </script>
-              - 2022 Tailwindow. All Rights Reserved.
-            </div>
-            <div className="px-4 w-full text-center sm:w-auto sm:text-left">
-              Made with ❤️ by EduNova.
+              Made with ❤️ by 4Elements
             </div>
           </div>
         </div>
