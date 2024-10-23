@@ -1,5 +1,5 @@
 import styles from "./ExtraInfo.module.css";
-import computer from "assets/imgs/computer.png";
+import computer from "assets/imgs/computer.gif";
 
 export default function ExtraInfo({ t }) {
   // O i18next retornará o array de highlights

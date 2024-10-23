@@ -57,7 +57,7 @@ export default function Menu({ t, handleTrans, language }) {
         </div>
 
         <div className="toggle w-full text-end hidden md:flex md:w-auto px-2 py-2 md:rounded">
-          <NavLink href="tel:+123">
+          <NavLink to="/signup">
             <div className="flex justify-end">
               <div className="flex items-center h-10 w-30 rounded-md bg-[--amarelo] text-[--azul-escuro] font-medium p-2">
                 Login / Sign up
