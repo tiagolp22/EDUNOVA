@@ -6,7 +6,7 @@ import expertise from "assets/imgs/expertise.png";
 export default function IconHome() {
   return (
     <section className="text-gray-700 body-font mt-10">
-      <div className="flex justify-center text-3xl font-bold text-[--amarelo] text-center">
+      <div className="flex justify-center text-3xl font-bold text-[--azul-medio] text-center">
         Why Us?
       </div>
       <div className="container px-5 py-12 mx-auto">
