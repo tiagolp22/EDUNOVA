@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS public.users (
     email TEXT NOT NULL UNIQUE,
     password TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
     privilege_id INTEGER REFERENCES public.privileges(id) ON DELETE NO ACTION
 );
 
