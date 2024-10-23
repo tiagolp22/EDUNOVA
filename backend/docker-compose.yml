@@ -2,20 +2,41 @@ version: '3.8'
 services:
   frontend:
     build:
-      context: ./frontend
+      context: ../frontend
     ports:
       - "3000:3000"
     volumes:
-      - ./frontend:/app
+      - ../frontend:/app
       - /app/node_modules
     command: ["npm", "start"]
 
   backend:
     build:
-      context: ./backend
+      context: .
     ports:
       - "5000:5000"
     volumes:
-      - ./backend:/app
+      - ./:/app
       - /app/node_modules
     command: ["npm", "start"]
+    environment:
+      - DATABASE_URL=postgres://postgres:password@db:5432/mydatabase
+
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: mydatabase
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./db:/docker-entrypoint-initdb.d/
+    networks:
+      - app-network
+
+volumes:
+  pgdata:
+  
+networks:
+  app-network:
