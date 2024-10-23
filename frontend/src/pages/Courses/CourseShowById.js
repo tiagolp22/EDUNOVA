@@ -7,9 +7,6 @@ export default function CourseShowById({ t }) {
   return (
     <div>
       <h1>Hello Curso {parametro.id}</h1>
-      <p>caralho!!!!!!
-        
-      </p>
     </div>
   );
 }
