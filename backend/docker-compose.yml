@@ -1,42 +1,54 @@
 version: '3.8'
+
 services:
   frontend:
     build:
-      context: ../frontend
+      context: ../frontend  # Path to your frontend folder
     ports:
       - "3000:3000"
     volumes:
-      - ../frontend:/app
-      - /app/node_modules
+      - ../frontend:/app  # Sync frontend source code with container for development
+      - /app/node_modules  # Avoid overwriting node_modules
     command: ["npm", "start"]
+    networks:
+      - app-network  # Add frontend to the same network
 
   backend:
     build:
-      context: .
+      context: .  # Path to your backend folder (current directory)
     ports:
-      - "5000:5000"
+      - "5000:5000"  # Expose backend on port 5000
     volumes:
-      - ./:/app
-      - /app/node_modules
+      - ./:/app  # Sync backend source code with container for development
+      - node_modules:/app/node_modules  # Use named volume for node_modules
     command: ["npm", "start"]
     environment:
-      - DATABASE_URL=postgres://postgres:password@db:5432/mydatabase
+      - DATABASE_URL=postgres://postgres:2213Tb@db:5432/mydatabase  # URL connection string for PostgreSQL
+      - JWT_SECRET=${JWT_SECRET}  # Use secret for JWT from .env
+      - JWT_EXPIRATION=${JWT_EXPIRATION}  # Use expiration time for JWT from .env
+    depends_on:
+      - db  # Ensure backend waits for the database to be ready
+    networks:
+      - app-network  # Add backend to the same network
 
   db:
-    image: postgres:13
+    image: postgres:13  # Use PostgreSQL version 13
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: mydatabase
+      POSTGRES_USER: postgres  # PostgreSQL username
+      POSTGRES_PASSWORD: 2213Tb  # PostgreSQL password
+      POSTGRES_DB: mydatabase  # PostgreSQL database name
     ports:
-      - "5432:5432"
+      - "5432:5432"  # Expose PostgreSQL on port 5432
     volumes:
-      - ./db:/docker-entrypoint-initdb.d/
+      - ./db:/docker-entrypoint-initdb.d/  # Initialize the database with SQL scripts in the db directory
     networks:
-      - app-network
+      - app-network  # Ensure db is in the same network
 
 volumes:
+  node_modules:  # Declare the named volume
   pgdata:
-  
+    driver: local  # Store PostgreSQL data on the local machine
+
 networks:
   app-network:
+    driver: bridge  # Use a bridge network to connect all services

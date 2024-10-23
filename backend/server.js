@@ -1,19 +1,24 @@
+// server.js
 const express = require('express');
 const cors = require('cors');
-const dotenv = require('dotenv');
-dotenv.config();
+const sequelize = require('./config/db');  // Importing the database connection
+const userRoutes = require('./routes/users');
+const config = require('./config/config');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
 
-// Middleware
-app.use(cors());
-app.use(express.json());
+// Middleware setup
+app.use(cors());  // Enable Cross-Origin Resource Sharing
+app.use(express.json());  // Parse incoming JSON requests
 
-// Routes
-app.use('/api', require('./routes/api'));
+// Routes setup
+app.use('/api/users', userRoutes);  // User routes
 
-// Start the server
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+// Syncing the database and starting the server
+sequelize.sync().then(() => {
+  app.listen(config.server.port, () => {
+    console.log(`Server running on port ${config.server.port}`);
+  });
+}).catch(err => {
+  console.error('Error syncing the database:', err);
 });
