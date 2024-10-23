@@ -1,13 +1,12 @@
-version: '3'
-
 services:
   frontend:
     build:
       context: .
-    image: node:18  
     ports:
       - "3000:3000"
     volumes:
       - .:/app
       - /app/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true
     command: ["npm", "start"]

@@ -2,7 +2,7 @@
 FROM node:18
 
 # Definir o diretório de trabalho dentro do contêiner
-WORKDIR /app
+WORKDIR /frontend
 
 # Copiar os arquivos de dependências para o contêiner
 COPY package.json package-lock.json ./
