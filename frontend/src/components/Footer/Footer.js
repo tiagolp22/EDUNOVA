@@ -15,10 +15,11 @@ export default function Footer() {
                 </h2>
               </Link>
               <p className="text-justify">
-                Tailwindow is a collection of UI Components created using
-                Tailwind CSS Framework. The UI Components gives you all of the
-                building blocks you need to build any designs without any
-                annoying opinionated styles you have to fight to override.
+                EduNova is a revolutionary distance learning platform that puts
+                you in total control of your educational journey. Unlike other
+                platforms in the market, EduNova offers a unique solution: you
+                install it directly on your own server, ensuring complete
+                autonomy over all aspects of your learning environment.
               </p>
             </div>
 
@@ -30,28 +31,24 @@ export default function Footer() {
               </div>
               <ul className="leading-8">
                 <li>
-                  <Link to="#" className="hover:text-blue-400">
+                  <Link to="/about" className="hover:text-blue-400">
                     About Us
                   </Link>
                 </li>
                 <li>
-                  <Link to="#" className="hover:text-blue-400">
-                    Terms &amp; Conditions
+                  <Link to="/services" className="hover:text-blue-400">
+                    Services
                   </Link>
                 </li>
+
                 <li>
-                  <Link to="#" className="hover:text-blue-400">
-                    Privacy Policy
-                  </Link>
-                </li>
-                <li>
-                  <Link to="#" className="hover:text-blue-400">
+                  <Link to="/contactus" className="hover:text-blue-400">
                     Contact Us
                   </Link>
                 </li>
               </ul>
             </div>
-            <div className="px-4 my-4 w-full sm:w-auto">
+            {/* <div className="px-4 my-4 w-full sm:w-auto">
               <div>
                 <h2 className="inline-block text-2xl pb-4 mb-4 border-b-4 border-blue-600">
                   Blog
@@ -84,7 +81,7 @@ export default function Footer() {
                   </Link>
                 </li>
               </ul>
-            </div>
+            </div> */}
             <div className="px-4 my-4 w-full sm:w-auto xl:w-1/5">
               <div>
                 <h2 className="inline-block text-2xl pb-4 mb-4 border-b-4 border-[--azul-medio]">

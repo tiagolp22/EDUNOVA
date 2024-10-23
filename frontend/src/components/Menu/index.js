@@ -36,28 +36,23 @@ export default function Menu({ t, handleTrans, language }) {
             Home
           </NavLink>
           <NavLink
-            href="#services"
+            to="/services"
             className="block md:inline-block hover:text-blue-500 px-3 py-3 md:border-none"
           >
             Services
           </NavLink>
           <NavLink
-            href="#aboutus"
+            to="/about"
             className="block md:inline-block hover:text-blue-500 px-3 py-3 md:border-none"
           >
             About us
           </NavLink>
+
           <NavLink
-            href="#gallery"
+            to="/contactUs"
             className="block md:inline-block hover:text-blue-500 px-3 py-3 md:border-none"
           >
-            Gallery
-          </NavLink>
-          <NavLink
-            href="#contactUs"
-            className="block md:inline-block hover:text-blue-500 px-3 py-3 md:border-none"
-          >
-            Visit Us
+            Contact us
           </NavLink>
         </div>
 

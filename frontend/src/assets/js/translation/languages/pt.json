@@ -22,6 +22,32 @@
               "Escale seu negócio sem custos adicionais"
             ],
             "note": "*Taxas de processamento de pagamento podem ser aplicadas dependendo do serviço escolhido"
-          }
+          },
+
+          "services": {
+              "title": "Nossos Serviços",
+              "subtitle": "Pacote completo para sua plataforma de ensino online",
+              "items": [
+                {
+                  "title": "Código Fonte da Plataforma",
+                  "description": "Acesso completo ao código fonte da plataforma EduNova, permitindo total controle e personalização do seu ambiente de ensino."
+                },
+                {
+                  "title": "Serviço de Implantação",
+                  "description": "Instalação e configuração completa da plataforma em seu servidor, garantindo que tudo funcione perfeitamente desde o primeiro dia."
+                },
+                {
+                  "title": "Manutenção por 1 Ano",
+                  "description": "Suporte técnico e manutenção por 12 meses, incluindo atualizações do sistema sem custo adicional durante este período."
+                }
+              ],
+              "additionalInfo": [
+                "Após o primeiro ano, manutenções pontuais podem ser contratadas conforme necessidade",
+                "Atualizações do sistema após o período inicial são cobradas separadamente",
+                "Serviço de manutenção pode ser renovado anualmente"
+              ]
+            }
+
+          
     } 
 }

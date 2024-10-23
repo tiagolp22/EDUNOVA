@@ -22,6 +22,30 @@
               "Scale your business with no additional costs"
             ],
             "note": "*Payment processing fees may apply depending on chosen gateway"
+          },
+
+          "services":{
+            "title": "Our Services",
+            "subtitle": "Complete package for your online learning platform",
+            "items": [
+              {
+                "title": "Platform Source Code",
+                "description": "Full access to EduNova's platform source code, allowing complete control and customization of your learning environment."
+              },
+              {
+                "title": "Implementation Service",
+                "description": "Complete platform installation and configuration on your server, ensuring everything works perfectly from day one."
+              },
+              {
+                "title": "1-Year Maintenance",
+                "description": "Technical support and maintenance for 12 months, including system updates at no additional cost during this period."
+              }
+            ],
+            "additionalInfo": [
+              "After the first year, specific maintenance services can be contracted as needed",
+              "System updates after the initial period are charged separately",
+              "Maintenance service can be renewed annually"
+            ]
           }
 
     } 
