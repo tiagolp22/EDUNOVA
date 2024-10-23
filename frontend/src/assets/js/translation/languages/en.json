@@ -9,7 +9,20 @@
         "btn_aboutUs": "About us",
         "btn_delete": "Delete",
         "btn_edit": "Edit",
-        "btn_update": "Update"
+        "btn_update": "Update",
+        
+        "extrainfo":{
+            "title": "Why choose EduNova?",
+            "highlights": [
+              "Install on your own server - have total control of your platform",
+              "Zero commission on course sales - keep 100% of your profit*",
+              "Unlimited video and material uploads",
+              "Your own secure streaming system",
+              "Fully customizable platform",
+              "Scale your business with no additional costs"
+            ],
+            "note": "*Payment processing fees may apply depending on chosen gateway"
+          }
 
     } 
 }

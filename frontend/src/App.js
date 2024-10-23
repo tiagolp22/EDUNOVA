@@ -42,7 +42,7 @@ function App() {
       <Menu t={t} handleTrans={handleTrans} language={language} />
       <Routes>
         <Route path="/" element={<Home t={t} language={language} />} />
-        <Route path="/about" element={<About />} />
+        <Route path="/about" element={<About language={language} />} />
         <Route path="*" element={<div>page not found</div>} />
 
         <Route path="/course/:id" element={<CourseShowById t={t} />} />

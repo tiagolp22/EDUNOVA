@@ -1,0 +1,94 @@
+{
+    "PT": {
+      "title": "Sobre a EduNova",
+      "intro": "A EduNova é uma plataforma revolucionária de ensino à distância que coloca você no controle total da sua jornada educacional. Diferentemente de outras plataformas do mercado, a EduNova oferece uma solução única: você instala diretamente em seu próprio servidor, garantindo autonomia completa sobre todos os aspectos do seu ambiente de ensino.",
+      "sections": {
+        "control": {
+          "title": "Controle Total",
+          "items": [
+            "Hospedagem em seu próprio servidor",
+            "Gestão completa da sua base de dados",
+            "Administração independente do sistema de streaming",
+            "Liberdade para configurar e personalizar conforme suas necessidades"
+          ]
+        },
+        "economy": {
+          "title": "Economia Real",
+          "items": [
+            "Sem taxas extras sobre vendas de cursos por parte da EduNova",
+            "Nenhuma comissão sobre transações para a plataforma",
+            "Você mantém 100% do valor das suas vendas*",
+            "Investimento único na instalação"
+          ],
+          "note": "*Nota: Ao processar pagamentos, podem incidir taxas de serviços de processamento como PayPal, Stripe ou outros gateways de pagamento de sua escolha. Estas são taxas dos provedores de pagamento e não da EduNova."
+        },
+        "flexibility": {
+          "title": "Flexibilidade de Conteúdo",
+          "items": [
+            "Upload ilimitado de vídeos",
+            "Hospedagem de materiais em PDF",
+            "Compartilhamento de imagens e fotos",
+            "Criação de conteúdo em texto rico",
+            "Streaming otimizado e seguro"
+          ]
+        },
+        "advantages": {
+          "title": "Vantagens Exclusivas",
+          "items": [
+            "Personalização completa da interface",
+            "Integração com seus sistemas existentes",
+            "Backup e segurança sob seu controle",
+            "Escalabilidade conforme seu crescimento",
+            "Independência de plataformas terceiras"
+          ]
+        }
+      },
+      "footer": "Com a EduNova, você não apenas cria cursos online - você constrói seu próprio ecossistema educacional, com total liberdade para crescer e se desenvolver no seu ritmo, sem limitações ou custos recorrentes inesperados."
+    },
+    "EN": {
+      "title": "About EduNova",
+      "intro": "EduNova is a revolutionary distance learning platform that puts you in total control of your educational journey. Unlike other platforms in the market, EduNova offers a unique solution: you install it directly on your own server, ensuring complete autonomy over all aspects of your learning environment.",
+      "sections": {
+        "control": {
+          "title": "Total Control",
+          "items": [
+            "Hosting on your own server",
+            "Complete database management",
+            "Independent streaming system administration",
+            "Freedom to configure and customize according to your needs"
+          ]
+        },
+        "economy": {
+          "title": "Real Savings",
+          "items": [
+            "No extra fees on course sales from EduNova",
+            "No platform transaction commissions",
+            "Keep 100% of your sales value*",
+            "One-time installation investment"
+          ],
+          "note": "*Note: When processing payments, fees may apply for payment services such as PayPal, Stripe, or other payment gateways of your choice. These are payment provider fees and not EduNova fees."
+        },
+        "flexibility": {
+          "title": "Content Flexibility",
+          "items": [
+            "Unlimited video uploads",
+            "PDF materials hosting",
+            "Image and photo sharing",
+            "Rich text content creation",
+            "Optimized and secure streaming"
+          ]
+        },
+        "advantages": {
+          "title": "Exclusive Advantages",
+          "items": [
+            "Complete interface customization",
+            "Integration with your existing systems",
+            "Backup and security under your control",
+            "Scalability as you grow",
+            "Independence from third-party platforms"
+          ]
+        }
+      },
+      "footer": "With EduNova, you don't just create online courses - you build your own educational ecosystem, with complete freedom to grow and develop at your own pace, without unexpected recurring costs or limitations."
+    }
+  }
