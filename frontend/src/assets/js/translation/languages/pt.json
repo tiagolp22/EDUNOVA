@@ -8,6 +8,20 @@
 
 
         "btn_aboutUs": "Sobre nós",
-        "btn_info": " + info"
+        "btn_info": " + info",
+
+    
+        "extrainfo":{
+            "title": "Por que escolher a EduNova?",
+            "highlights": [
+              "Instalação em seu próprio servidor - tenha controle total da sua plataforma",
+              "Zero comissões sobre vendas de cursos - fique com 100% do seu lucro*",
+              "Upload ilimitado de vídeos e materiais de acordo com o seu servidor",
+              "Sistema de streaming próprio e seguro",
+              "Personalize completamente sua plataforma",
+              "Escale seu negócio sem custos adicionais"
+            ],
+            "note": "*Taxas de processamento de pagamento podem ser aplicadas dependendo do serviço escolhido"
+          }
     } 
 }

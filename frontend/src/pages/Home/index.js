@@ -1,6 +1,6 @@
 import Banner from "components/Banner";
 import Catalogue from "components/Catalogue";
-import ExtraInfo from "components/ExtraInfo/ExtraInfo";
+import ExtraInfo from "components/ExtraInfo";
 import Footer from "components/Footer/Footer";
 import IconHome from "components/IconsHome/IconHome";
 

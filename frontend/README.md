@@ -1,4 +1,3 @@
-
 ![EduNova logo](src/assets/imgs/EduNova_logo.gif)
 
 An innovative platform for hosting and managing online courses, with a focus on seamless user experience and robust functionality.
@@ -9,7 +8,7 @@ EduNova aims to revolutionize online learning by providing a robust and user-fri
 
 ## Team
 
-- Clara Quintela: Front-end Development
+- Clara Quintela: Database Front-end Development
 - Tiago Barros Cavalcanti: Database and Back-end Development
 
 ## Features
@@ -38,7 +37,7 @@ EduNova aims to revolutionize online learning by providing a robust and user-fri
 
 ### Database
 
-- SQLite
+- PostgreSQL
 
 ### Build Tools
 

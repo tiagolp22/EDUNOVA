@@ -31,5 +31,38 @@
         "image": "meditation1_mockup.jpg",
         "categoria": 3,
         "status": 1
+    },
+    {
+        "id": 4,
+        "title": "{\"en\":\"Yoga class for beginners\", \"pt\":\"Aulas de Yoga\"}",
+        "subtitle": "{\"en\":\"Subtitle of course 4\", \"pt\":\"Subtítulo do curso 4\"}",
+        "descriptiom": "{\"en\":\"This is a little description of course 4, a wonderful course about blablabla.\", \"pt\":\"Esse é uma pequena descrição sobre o incrível curso 3, que vai te ensinar tudo sobre blablabla.\"}",
+        "price": 120,
+        "video": "",
+        "image": "yoga.jpg",
+        "categoria": 3,
+        "status": 1
+    },
+    {
+        "id": 5,
+        "title": "{\"en\":\"Creativy class for children\", \"pt\":\"Criatividade para crianças\"}",
+        "subtitle": "{\"en\":\"Subtitle of course 5\", \"pt\":\"Subtítulo do curso 5\"}",
+        "descriptiom": "{\"en\":\"This is a little description of course 5, a wonderful course about blablabla.\", \"pt\":\"Esse é uma pequena descrição sobre o incrível curso 3, que vai te ensinar tudo sobre blablabla.\"}",
+        "price": 120,
+        "video": "",
+        "image": "arteclass.jpg",
+        "categoria": 4,
+        "status": 1
+    },
+    {
+        "id": 6,
+        "title": "{\"en\":\"The secrets of a good bread\", \"pt\":\"Os segredos de um bom pão\"}",
+        "subtitle": "{\"en\":\"Subtitle of course 6\", \"pt\":\"Subtítulo do curso 6\"}",
+        "descriptiom": "{\"en\":\"This is a little description of course 6, a wonderful course about blablabla.\", \"pt\":\"Esse é uma pequena descrição sobre o incrível curso 3, que vai te ensinar tudo sobre blablabla.\"}",
+        "price": 120,
+        "video": "",
+        "image": "bread.jpg",
+        "categoria": 5,
+        "status": 1
     }
 ]

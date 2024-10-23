@@ -17,12 +17,14 @@ export default function Menu({ t, handleTrans, language }) {
               src="https://img.icons8.com/fluent-systems-regular/2x/menu-squared-2.png"
               width="40"
               height="40"
+              alt="Icon"
             />
             <img
               className="toggle hidden"
               src="https://img.icons8.com/fluent-systems-regular/2x/close-window.png"
               width="40"
               height="40"
+              alt="Icon"
             />
           </button>
         </div>

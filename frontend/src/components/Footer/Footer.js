@@ -9,9 +9,9 @@ export default function Footer() {
             <div className="px-4 my-4 w-full xl:w-1/5">
               <Link to="/" className="block w-56 mb-10">
                 <h2 className="inline-block text-2xl">
-                  <tspan x="654" y="518">
+                  <span x="654" y="518">
                     EduNova
-                  </tspan>
+                  </span>
                 </h2>
               </Link>
               <p className="text-justify">
