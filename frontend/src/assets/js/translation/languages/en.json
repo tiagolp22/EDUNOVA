@@ -19,6 +19,15 @@
 
         "notfound_title" : "Ops! Page not found.",
         "notfound_p1" : "Are you sure this is the page you were looking for?",
+
+        "signup_create" : "Create your account",
+        "signup_name": "Your Name",
+        "signup_password": "Your password",
+        "signup_password_confirm": "Confirm your password",
+        "signing_up" : "Signing up...",
+        "sign_up": "Save",
+        "signing_in" : "Signing in...",
+        "sign_in" : "Sign in",
         
         "extrainfo":{
             "title": "Why choose EduNova?",
