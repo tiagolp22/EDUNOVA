@@ -50,7 +50,13 @@
               "System updates after the initial period are charged separately",
               "Maintenance service can be renewed annually"
             ]
-          }
+          },
+
+          "iconsSection_why" : "Why EduNova?",
+          "iconsSection_time" : "Time Efficiency",
+          "iconsSection_value" : "Best value for money",
+          "iconsSection_expertise" : "Expertise in the field",
+          "iconsSection_friendly" : "User friendly"
 
     } 
 }

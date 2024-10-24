@@ -49,7 +49,15 @@
                 "Atualizações do sistema após o período inicial são cobradas separadamente",
                 "Serviço de manutenção pode ser renovado anualmente"
               ]
-            }
+            },
+        
+            "iconsSection_why" : "Por que EduNova?",
+             "iconsSection_time" : "Mais Eficiente",
+             "iconsSection_value" : "Melhor custo benefício",
+             "iconsSection_expertise" : "Desenvolvido por especialistas",
+             "iconsSection_friendly" : "Fácil de usar"
+             
+
 
           
     } 

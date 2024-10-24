@@ -3,11 +3,11 @@ import price from "assets/imgs/price.png";
 import friendly from "assets/imgs/friendly.png";
 import expertise from "assets/imgs/expertise.png";
 
-export default function IconHome() {
+export default function IconHome({ t }) {
   return (
     <section className="text-gray-700 body-font mt-10">
       <div className="flex justify-center text-3xl font-bold text-[--azul-medio] text-center">
-        Why Us?
+        {t("iconsSection_why")}
       </div>
       <div className="container px-5 py-12 mx-auto">
         <div className="flex flex-wrap text-center justify-center">
@@ -17,7 +17,7 @@ export default function IconHome() {
                 <img src={time} className="w-32 mb-3" alt="Icon time" />
               </div>
               <h2 className="title-font font-regular text-2xl text-[--azul-medio]">
-                Time Efficiency
+                {t("iconsSection_time")}
               </h2>
             </div>
           </div>
@@ -28,7 +28,7 @@ export default function IconHome() {
                 <img src={price} className="w-32 mb-3" alt="icon price" />
               </div>
               <h2 className="title-font font-regular text-2xl text-[--azul-medio]">
-                Best value for money
+                {t("iconsSection_value")}
               </h2>
             </div>
           </div>
@@ -43,7 +43,7 @@ export default function IconHome() {
                 />
               </div>
               <h2 className="title-font font-regular text-2xl text-[--azul-medio]">
-                Expertise in the field
+                {t("iconsSection_expertise")}
               </h2>
             </div>
           </div>
@@ -54,7 +54,7 @@ export default function IconHome() {
                 <img src={friendly} className="w-32 mb-3" alt="Icon friendly" />
               </div>
               <h2 className="title-font font-regular text-2xl text-[--azul-medio]">
-                User friendly
+                {t("iconsSection_friendly")}
               </h2>
             </div>
           </div>
