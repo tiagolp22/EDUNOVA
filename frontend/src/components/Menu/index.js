@@ -39,20 +39,20 @@ export default function Menu({ t, handleTrans, language }) {
             to="/services"
             className="block md:inline-block hover:text-blue-500 px-3 py-3 md:border-none"
           >
-            Services
+            {t("nav_services")}
           </NavLink>
           <NavLink
             to="/about"
             className="block md:inline-block hover:text-blue-500 px-3 py-3 md:border-none"
           >
-            About us
+            {t("nav_about")}
           </NavLink>
 
           <NavLink
             to="/contactUs"
             className="block md:inline-block hover:text-blue-500 px-3 py-3 md:border-none"
           >
-            Contact us
+            {t("nav_contact")}
           </NavLink>
         </div>
 

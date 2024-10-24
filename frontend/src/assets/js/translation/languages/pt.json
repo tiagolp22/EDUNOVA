@@ -10,7 +10,10 @@
         "btn_aboutUs": "Sobre nós",
         "btn_info": " + info",
 
-    
+        "nav_contact" : "Contato",
+        "nav_services" : "Serviços",
+        "nav_about" : "Quem somos",
+        
         "extrainfo":{
             "title": "Por que escolher a EduNova?",
             "highlights": [
