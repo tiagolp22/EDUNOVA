@@ -10,6 +10,24 @@
         "btn_delete": "Delete",
         "btn_edit": "Edit",
         "btn_update": "Update",
+        "btn_back": "Back",
+
+        "nav_contact" : "Contact",
+        "nav_services" : "Services",
+        "nav_about" : "About us",
+        "nav_conect": "Conect with us",
+
+        "notfound_title" : "Ops! Page not found.",
+        "notfound_p1" : "Are you sure this is the page you were looking for?",
+
+        "signup_create" : "Create your account",
+        "signup_name": "Your Name",
+        "signup_password": "Your password",
+        "signup_password_confirm": "Confirm your password",
+        "signing_up" : "Signing up...",
+        "sign_up": "Save",
+        "signing_in" : "Signing in...",
+        "sign_in" : "Sign in",
         
         "extrainfo":{
             "title": "Why choose EduNova?",
@@ -46,7 +64,13 @@
               "System updates after the initial period are charged separately",
               "Maintenance service can be renewed annually"
             ]
-          }
+          },
+
+          "iconsSection_why" : "Why EduNova?",
+          "iconsSection_time" : "Time Efficiency",
+          "iconsSection_value" : "Best value for money",
+          "iconsSection_expertise" : "Expertise in the field",
+          "iconsSection_friendly" : "User friendly"
 
     } 
 }

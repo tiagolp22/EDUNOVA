@@ -9,8 +9,27 @@
 
         "btn_aboutUs": "Sobre nós",
         "btn_info": " + info",
+        "btn_back": " Voltar",
 
-    
+        "nav_contact" : "Contato",
+        "nav_services" : "Serviços",
+        "nav_about" : "Quem somos",
+        "nav_conect": "Conecte com a gente",
+
+        "notfound_title" : "Ops! Página não encontrada.",
+        "notfound_p1" : "Tem certeza de que era isso que você estava procurando?",
+
+        "signup_create" : "Inscreva-se",
+        "signup_name": "Seu nome",
+        "signup_password": "Sua senha",
+        "signup_password_confirm": "Confirme sua senha",
+        "signing_up" : "Criando...",
+        "sign_up": "Quero me inscrever",
+        "signing_in" : "Entrando...",
+        "sign_in" : "Entrar",
+        
+        
+        
         "extrainfo":{
             "title": "Por que escolher a EduNova?",
             "highlights": [
@@ -46,7 +65,15 @@
                 "Atualizações do sistema após o período inicial são cobradas separadamente",
                 "Serviço de manutenção pode ser renovado anualmente"
               ]
-            }
+            },
+        
+            "iconsSection_why" : "Por que EduNova?",
+             "iconsSection_time" : "Mais Eficiente",
+             "iconsSection_value" : "Melhor custo benefício",
+             "iconsSection_expertise" : "Desenvolvido por especialistas",
+             "iconsSection_friendly" : "Fácil de usar"
+             
+
 
           
     } 

@@ -10,8 +10,8 @@ export default function Home({ t, language }) {
       <Banner t={t} />
       <Catalogue t={t} language={language} />
       <ExtraInfo t={t} />
-      <IconHome />
-      <Footer />
+      <IconHome t={t} />
+      <Footer t={t} />
     </div>
   );
 }

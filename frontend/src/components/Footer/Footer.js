@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-export default function Footer() {
+export default function Footer({ t }) {
   return (
     <footer>
       <div className="bg-[--azul-escuro] py-4 text-gray-400">
@@ -25,25 +25,25 @@ export default function Footer() {
 
             <div className="px-4 my-4 w-full sm:w-auto">
               <div>
-                <h2 className="inline-block text-2xl pb-4 mb-4 border-b-4 border-blue-600">
+                <h2 className="inline-block text-2xl pb-4 mb-4 border-b-4 border-[--azul-medio]">
                   Company
                 </h2>
               </div>
               <ul className="leading-8">
                 <li>
-                  <Link to="/about" className="hover:text-blue-400">
-                    About Us
+                  <Link to="/about" className="hover:text-[--amarelo]">
+                    {t("nav_about")}
                   </Link>
                 </li>
                 <li>
-                  <Link to="/services" className="hover:text-blue-400">
-                    Services
+                  <Link to="/services" className="hover:text-[--amarelo]">
+                    {t("nav_services")}
                   </Link>
                 </li>
 
                 <li>
-                  <Link to="/contactus" className="hover:text-blue-400">
-                    Contact Us
+                  <Link to="/contactus" className="hover:text-[--azul-amarelo]">
+                    {t("nav_contact")}
                   </Link>
                 </li>
               </ul>
@@ -85,7 +85,7 @@ export default function Footer() {
             <div className="px-4 my-4 w-full sm:w-auto xl:w-1/5">
               <div>
                 <h2 className="inline-block text-2xl pb-4 mb-4 border-b-4 border-[--azul-medio]">
-                  Connect With Us
+                  {t("nav_conect")}
                 </h2>
               </div>
               <a
@@ -102,7 +102,7 @@ export default function Footer() {
               </a>
               <a
                 href="#"
-                className="inline-flex items-center justify-center h-8 w-8 border border-gray-100 rounded-full mr-1 hover:text-blue-400 hover:border-blue-400"
+                className="inline-flex items-center justify-center h-8 w-8 border border-gray-100 rounded-full mr-1 hover:text[--amarelo] hover:border-blue-400"
               >
                 <svg
                   className="w-4 h-4 fill-current"
