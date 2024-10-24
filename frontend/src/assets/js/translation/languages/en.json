@@ -10,11 +10,15 @@
         "btn_delete": "Delete",
         "btn_edit": "Edit",
         "btn_update": "Update",
+        "btn_back": "Back",
 
         "nav_contact" : "Contact",
         "nav_services" : "Services",
         "nav_about" : "About us",
         "nav_conect": "Conect with us",
+
+        "notfound_title" : "Ops! Page not found.",
+        "notfound_p1" : "Are you sure this is the page you were looking for?",
         
         "extrainfo":{
             "title": "Why choose EduNova?",

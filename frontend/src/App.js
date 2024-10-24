@@ -9,6 +9,7 @@ import Banner from "components/Banner";
 import CourseShowById from "pages/Courses/CourseShowById";
 import Services from "pages/Services";
 import Signup from "pages/Signup";
+import NotFound from "pages/NotFound";
 
 const lngs = [
   { code: "en", native: "EN" },
@@ -46,7 +47,7 @@ function App() {
         <Route path="/" element={<Home t={t} language={language} />} />
         <Route path="/about" element={<About language={language} />} />
         <Route path="/services" element={<Services t={t} />} />
-        <Route path="*" element={<div>page not found</div>} />
+        <Route path="*" element={<NotFound t={t}/>} />
         <Route path="signup" element={<Signup t={t} />} />
         <Route path="/course/:id" element={<CourseShowById t={t} />} />
       </Routes>
