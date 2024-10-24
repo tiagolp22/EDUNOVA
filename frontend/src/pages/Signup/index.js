@@ -16,22 +16,26 @@ export default function Signup({ t }) {
             </h1>
             <div className="w-full flex-1 mt-8">
               <div className="mx-auto max-w-xs">
+                <input
+                  className="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white"
+                  type="text"
+                  placeholder={t("name")}
+                />
 
-                
                 <input
                   className="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white"
                   type="email"
                   placeholder="Email"
                 />
+
+
                 <input
                   className="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white mt-5"
                   type="password"
-                  placeholder="Password"
+                  placeholder={t("password")}
                 />
 
-                <Button >
-                  Sign up
-                </Button>
+                <Button>Sign up</Button>
               </div>
             </div>
           </div>
