@@ -44,7 +44,10 @@ function App() {
         <Route path="*" element={<NotFound t={t} />} />
         <Route path="/signup" element={<Signup t={t} />} />
         <Route path="/login" element={<Signin t={t} />} />
-        <Route path="/course/:id" element={<CourseShowById t={t} />} />
+        <Route
+          path="/course/:id"
+          element={<CourseShowById t={t} language={language} />}
+        />
       </Routes>
     </BrowserRouter>
   );
