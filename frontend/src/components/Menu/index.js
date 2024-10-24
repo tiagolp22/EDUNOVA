@@ -65,7 +65,7 @@ export default function Menu({ t, handleTrans, language }) {
             </div>
           </NavLink>
 
-          <div className="Flex fixed top-0 right-0 mx-6 text-[#446ca2]">
+          <div className="Flex  top-0 right-0  mx-6 text-[#446ca2]">
             {language === "en" ? (
               <button
                 onClick={() => handleTrans("pt")}
