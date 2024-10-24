@@ -4,13 +4,11 @@ import logo from "assets/imgs/EduNova_logo.png";
 import signup from "assets/imgs/signup.png";
 import Button from "components/Button/Button";
 
-export default function Signup({ t }) {
+export default function Signin({ t }) {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    name: "",
     email: "",
     password: "",
-    confirmPassword: "",
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -24,26 +22,10 @@ export default function Signup({ t }) {
   };
 
   const validateForm = () => {
-    if (
-      !formData.name ||
-      !formData.email ||
-      !formData.password ||
-      !formData.confirmPassword
-    ) {
+    if (!formData.email || !formData.password) {
       setError(t("please_fill_all_fields"));
       return false;
     }
-
-    if (formData.password !== formData.confirmPassword) {
-      setError(t("passwords_dont_match"));
-      return false;
-    }
-
-    if (formData.password.length < 6) {
-      setError(t("password_too_short"));
-      return false;
-    }
-
     return true;
   };
 
@@ -55,13 +37,12 @@ export default function Signup({ t }) {
 
     try {
       setLoading(true);
-      const response = await fetch("http://localhost:5000/api/users/register", {
+      const response = await fetch("http://localhost:5000/api/users/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name: formData.name,
           email: formData.email,
           password: formData.password,
         }),
@@ -70,11 +51,15 @@ export default function Signup({ t }) {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Error creating account");
+        throw new Error(data.error || "Invalid credentials");
       }
 
-      // Redirect to login page on success
-      navigate("/login");
+      // Salvar o token no localStorage
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      // Redirecionar para a página principal após login
+      navigate("/");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -91,7 +76,7 @@ export default function Signup({ t }) {
           </div>
           <div className="mt-12 flex flex-col items-center">
             <h1 className="text-2xl xl:text-3xl font-extrabold">
-              {t("signup_create")}
+              {t("sign_in")}
             </h1>
             <form onSubmit={handleSubmit} className="w-full flex-1 mt-8">
               <div className="mx-auto max-w-xs">
@@ -101,14 +86,6 @@ export default function Signup({ t }) {
                   </div>
                 )}
 
-                <input
-                  className="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white"
-                  type="text"
-                  placeholder={t("signup_name")}
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                />
                 <input
                   className="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white mt-5"
                   type="email"
@@ -120,22 +97,18 @@ export default function Signup({ t }) {
                 <input
                   className="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white mt-5"
                   type="password"
-                  placeholder={t("signup_password")}
+                  placeholder={t("password")}
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
                 />
-                <input
-                  className="w-full px-8 py-4 mb-2 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white mt-5"
-                  type="password"
-                  placeholder={t("signup_password_confirm")}
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                />
 
-                <Button type="submit" disabled={loading} className="w-full">
-                  {loading ? t("signing_up") : t("sign_up")}
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full mt-5"
+                >
+                  {loading ? t("signing_in") : t("sign_in")}
                 </Button>
               </div>
             </form>

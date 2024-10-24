@@ -8,6 +8,7 @@ import CourseShowById from "pages/Courses/CourseShowById";
 import Services from "pages/Services";
 import Signup from "pages/Signup";
 import NotFound from "pages/NotFound";
+import Signin from "pages/Signin";
 
 function App() {
   const [language, setLanguage] = useState("en");
@@ -41,7 +42,8 @@ function App() {
         <Route path="/about" element={<About language={language} />} />
         <Route path="/services" element={<Services t={t} />} />
         <Route path="*" element={<NotFound t={t} />} />
-        <Route path="signup" element={<Signup t={t} />} />
+        <Route path="/signup" element={<Signup t={t} />} />
+        <Route path="/login" element={<Signin t={t} />} />
         <Route path="/course/:id" element={<CourseShowById t={t} />} />
       </Routes>
     </BrowserRouter>

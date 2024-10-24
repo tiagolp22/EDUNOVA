@@ -18,6 +18,14 @@
 
         "notfound_title" : "Ops! Página não encontrada.",
         "notfound_p1" : "Tem certeza de que era isso que você estava procurando?",
+
+        "signup_create" : "Faça a sua Contact",
+        "signup_name": "Se nome",
+        "signup_password": "Escreva sua senha",
+        "signup_password_confirm": "Confirme sua senha",
+        "signing_up" : "Criando...",
+        "sign_up": "Quero me inscrever",
+        
         
         "extrainfo":{
             "title": "Por que escolher a EduNova?",
