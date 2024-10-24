@@ -9,6 +9,7 @@ import Services from "pages/Services";
 import Signup from "pages/Signup";
 import NotFound from "pages/NotFound";
 import Signin from "pages/Signin";
+import Admin from "pages/Admin";
 
 function App() {
   const [language, setLanguage] = useState("en");
@@ -48,6 +49,7 @@ function App() {
           path="/course/:id"
           element={<CourseShowById t={t} language={language} />}
         />
+        <Route path="/admin" element={<Admin t={t} language={language} />} />
       </Routes>
     </BrowserRouter>
   );
