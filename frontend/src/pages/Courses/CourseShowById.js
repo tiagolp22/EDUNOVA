@@ -2,7 +2,7 @@ import { useParams } from "react-router-dom";
 
 export default function CourseShowById({ t, language }) {
   const parametro = useParams();
-
+  console.log("parametro ", parametro);
 
   return (
     <section className="overflow-hidden bg-white py-8 sm:py-16">
