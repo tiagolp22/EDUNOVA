@@ -10,6 +10,7 @@ logs/
 
 # dotenv environment variables
 .env
+.env.test
 
 # Docker
 docker-compose.override.yml
