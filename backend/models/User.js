@@ -1,24 +1,79 @@
-const { Sequelize, DataTypes } = require('sequelize');
-const sequelize = require('../config/db');  // Importa o sequelize de db.js
+// models/User.js
 
-const User = sequelize.define('User', {
-  name: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  email: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    unique: true,
-  },
-  password: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  }
-}, {
-  timestamps: true, // Garantindo que createdAt e updatedAt estão habilitados
-  createdAt: 'created_at',
-  updatedAt: 'updated_at',
-});
+/**
+ * User Model Definition
+ * 
+ * Represents students, instructors, and admins.
+ * 
+ * @param {Sequelize} sequelize - The Sequelize instance.
+ * @returns {Model} - The User model.
+ */
+module.exports = (sequelize) => {
+    const { DataTypes } = require('sequelize');
 
-module.exports = User;
+    const User = sequelize.define('User', {
+        id: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            autoIncrement: true,
+        },
+        name: {
+            type: DataTypes.TEXT,
+            allowNull: false,
+        },
+        email: {
+            type: DataTypes.TEXT,
+            allowNull: false,
+            unique: true,
+            validate: {
+                isEmail: true,
+            },
+        },
+        password: {
+            type: DataTypes.TEXT,
+            allowNull: false,
+        },
+        created_at: {
+            type: DataTypes.DATE,
+            defaultValue: DataTypes.NOW,
+        },
+        updated_at: {
+            type: DataTypes.DATE,
+            defaultValue: DataTypes.NOW,
+        },
+    }, {
+        tableName: 'users',
+        timestamps: true,
+        createdAt: 'created_at',
+        updatedAt: 'updated_at',
+    });
+
+    User.associate = (models) => {
+        User.belongsTo(models.Privilege, {
+            foreignKey: 'privilege_id',
+            as: 'privilege',
+        });
+
+        User.hasMany(models.Course, {
+            foreignKey: 'teacher_id',
+            as: 'courses',
+        });
+
+        User.hasMany(models.Enrollment, {
+            foreignKey: 'user_id',
+            as: 'enrollments',
+        });
+
+        User.hasMany(models.Progress, {
+            foreignKey: 'user_id',
+            as: 'progresses',
+        });
+
+        User.hasMany(models.Payment, {
+            foreignKey: 'user_id',
+            as: 'payments',
+        });
+    };
+
+    return User;
+};
