@@ -53,7 +53,6 @@ const User = sequelize.define('User', {
             foreignKey: 'user_id',
             as: 'payments',
         });
-    };
 
     return User;
 };
