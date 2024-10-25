@@ -12,9 +12,12 @@ services:
       - /frontend/node_modules
     environment:
       - NODE_ENV=development
+<<<<<<< Updated upstream
       - CHOKIDAR_USEPOLLING=true
       - WATCHPACK_POLLING=true
     command: npm start
+=======
+>>>>>>> Stashed changes
     networks:
       - app-network
 
@@ -25,6 +28,7 @@ services:
     ports:
       - "5000:5000"
     environment:
+<<<<<<< Updated upstream
       - DB_HOST=${DB_HOST}
       - DB_PORT=${DB_PORT}
       - DB_NAME=${DB_NAME}
@@ -34,6 +38,16 @@ services:
       - JWT_EXPIRATION=${JWT_EXPIRATION}
       - PORT=${PORT}
       - NODE_ENV=${NODE_ENV}
+=======
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=mydatabase
+      - DB_USER=postgres
+      - DB_PASSWORD=2213Tb
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRATION=${JWT_EXPIRATION}
+      - PORT=${PORT}
+>>>>>>> Stashed changes
     depends_on:
       - db
     volumes:
