@@ -1,68 +1,92 @@
 // controllers/authController.js
+
+/**
+ * Authentication Controller
+ *
+ * Handles user registration and login functionalities.
+ */
+
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { User } = require('../config/db').models;
+const { User } = require('../config/db');
 const config = require('../config/config');
 
-// User registration
+/**
+ * Register a new user
+ * 
+ * Allows a user to register by providing name, email, and password.
+ * Passwords are securely hashed before storing in the database.
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @route POST /api/auth/register
+ * @access Public
+ */
 exports.register = async (req, res) => {
-    const { name, email, password, privilege_id } = req.body;
+    const { name, email, password } = req.body;
 
     try {
         // Check if the user already exists
         const existingUser = await User.findOne({ where: { email } });
         if (existingUser) {
-            return res.status(400).json({ error: 'User already registered with this email' });
+            return res.status(400).json({ error: 'User with this email already exists' });
         }
 
-        // Hash the password
-        const isMatch = await bcrypt.compare(password, user.password);
+        // Securely hash the password
+        const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Create a new user
-        const newUser = await User.create({ name, email, password: hashedPassword, privilege_id });
+        // Create the new user in the database
+        const newUser = await User.create({ name, email, password: hashedPassword });
 
-        // Exclude password from response
-        const userResponse = {
-            id: newUser.id,
-            name: newUser.name,
-            email: newUser.email,
-            privilege_id: newUser.privilege_id,
-            created_at: newUser.created_at,
-            updated_at: newUser.updated_at
-        };
+        // Exclude the password from the response
+        const userResponse = { ...newUser.toJSON() };
+        delete userResponse.password;
 
         res.status(201).json(userResponse);
     } catch (error) {
-        res.status(400).json({ error: 'Error creating user' });
+        console.error('Error creating user:', error);
+        res.status(500).json({ error: 'Internal Server Error: Unable to create user' });
     }
 };
 
-// User login
+/**
+ * Log in a user and generate a JWT token
+ * 
+ * Authenticates the user by email and password. If valid, returns a signed JWT token
+ * which includes the user's id, email, and privilege level for authorization purposes.
+ * 
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @route POST /api/auth/login
+ * @access Public
+ */
 exports.login = async (req, res) => {
     const { email, password } = req.body;
 
     try {
         // Find the user by email
         const user = await User.findOne({ where: { email } });
-
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
         }
 
-        // Compare passwords
-        const validPassword = await bcrypt.compare(password, user.password);
-
-        if (!validPassword) {
+        // Compare the provided password with the stored hashed password
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (!isPasswordValid) {
             return res.status(401).json({ error: 'Invalid password' });
         }
 
-        // Generate JWT token
-        const token = jwt.sign({ id: user.id, email: user.email }, config.jwt.secret, {
-            expiresIn: config.jwt.expiration,
-        });
+        // Generate a JWT token with user info
+        const token = jwt.sign(
+            { id: user.id, email: user.email, privilege_id: user.privilege_id },
+            config.jwt.secret,
+            { expiresIn: config.jwt.expiration }
+        );
 
+        // Send the token in the response
         res.json({ token });
     } catch (error) {
-        res.status(500).json({ error: 'Error logging in' });
+        console.error('Error logging in user:', error);
+        res.status(500).json({ error: 'Internal Server Error: Unable to log in' });
     }
 };

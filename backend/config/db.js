@@ -1,76 +1,63 @@
 // config/db.js
 
-const { Sequelize } = require('sequelize');
-const config = require('./config'); // Ensure this path is correct
+const { Sequelize, DataTypes } = require('sequelize');
+const config = require('./config');
+const fs = require('fs');
+const path = require('path');
 
 /**
- * Initialize Sequelize using the database configuration from config.js
+ * Initialize Sequelize with database configurations.
  */
-const sequelize = new Sequelize(
-    config.db.database, // Database name
-    config.db.user,     // Database user
-    config.db.password, // Database password
-    {
-        host: config.db.host,     // Database host
-        port: config.db.port,     // Database port
-        dialect: 'postgres',      // Database dialect
-        logging: false,           // Disable logging; set to console.log to enable
-        pool: {
-            max: 10,
-            min: 0,
-            acquire: 30000,
-            idle: 10000,
-        },
-    }
-);
+const sequelize = new Sequelize(config.db.database, config.db.user, config.db.password, {
+  host: config.db.host,
+  port: config.db.port,
+  dialect: 'postgres',
+  logging: false,
+  pool: {
+    max: 10,
+    min: 0,
+    acquire: 30000,
+    idle: 10000,
+  },
+});
 
 /**
- * Import and initialize all models
+ * Object to hold all models
  */
-const modelFiles = [
-    '../models/Privilege',
-    '../models/User',
-    '../models/Status',
-    '../models/Course',
-    '../models/Class',
-    '../models/MediaFile',
-    '../models/Enrollment',
-    '../models/Progress',
-    '../models/Payment',
-];
-
+const db = {};
 const models = {};
 
-// Initialize each model
-modelFiles.forEach(modelPath => {
-    try {
-        const model = require(modelPath)(sequelize);
-        models[model.name] = model;
-    } catch (error) {
-        console.error(`Error loading model at path ${modelPath}:`, error);
-    }
+// Dynamically load all models from the models directory
+fs.readdirSync(path.join(__dirname, '../models'))
+  .filter((file) => file.endsWith('.js'))
+  .forEach((file) => {
+    const model = require(path.join(__dirname, '../models', file))(sequelize, DataTypes);
+    models[model.name] = model;
+  });
+
+// Set up associations between models, if defined
+Object.keys(models).forEach((modelName) => {
+  if (models[modelName].associate) {
+    models[modelName].associate(models);
+  }
 });
 
 /**
- * Set up associations between models, if any
- */
-Object.keys(models).forEach(modelName => {
-    if (models[modelName].associate) {
-        models[modelName].associate(models);
-    }
-});
-
-/**
- * Test the database connection
+ * Test the database connection.
  */
 const testConnection = async () => {
-    try {
-        await sequelize.authenticate();
-        console.log('Database connection established successfully.');
-    } catch (error) {
-        console.error('Unable to connect to the database:', error);
-    }
+  try {
+    await sequelize.authenticate();
+    console.log('Database connection established successfully.');
+  } catch (error) {
+    console.error('Unable to connect to the database:', error);
+  }
 };
 
-// Export Sequelize instance and models
-module.exports = { sequelize, models, testConnection };
+// Export the initialized Sequelize instance and models
+db.models = models;
+db.sequelize = sequelize;
+db.Sequelize = Sequelize;
+db.testConnection = testConnection;
+
+module.exports = db;
