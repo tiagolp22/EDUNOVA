@@ -5,38 +5,39 @@
  * Sets up Express app, middleware, routes, and starts the server.
  */
 
-// Import required modules
 const express = require('express');
 const app = express();
 const dotenv = require('dotenv');
 const helmet = require('helmet');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
-const morgan = require('morgan'); // Import morgan for logging
-const { sequelize, testConnection } = require('./backend/config/db');
+const morgan = require('morgan');
+const { sequelize, testConnection } = require('./config/db');
 
 // Load environment variables from .env
 dotenv.config();
 
 // Import routes
-const authRoutes = require('./backend/routes/auth');
-const userRoutes = require('./backend/routes/users');
-const privilegeRoutes = require('./backend/routes/privileges');
-const statusRoutes = require('./backend/routes/statuses');
-const courseRoutes = require('./backend/routes/courses');
-const classRoutes = require('./backend/routes/classes');
-const mediaFileRoutes = require('./backend/routes/mediaFiles');
-const enrollmentRoutes = require('./backend/routes/enrollments');
-const progressRoutes = require('./backend/routes/progress');
-const paymentRoutes = require('./backend/routes/payments');
+const authRoutes = require('./routes/auth');
+const userRoutes = require('./routes/users');
+const privilegeRoutes = require('./routes/privileges');
+const statusRoutes = require('./routes/statuses');
+const courseRoutes = require('./routes/courses');
+const classRoutes = require('./routes/classes');
+const mediaFileRoutes = require('./routes/mediaFiles');
+const enrollmentRoutes = require('./routes/enrollments');
+const progressRoutes = require('./routes/progress');
+const paymentRoutes = require('./routes/payments');
 
 // Import error handling middleware
-const errorHandler = require('./backend/middleware/errorHandler');
+const errorHandler = require('./middleware/errorHandler');
+const authenticateToken = require('./middleware/auth'); // Middleware de autenticação
 
-// Set up middleware
-app.use(express.json()); // Parse JSON request bodies
-app.use(helmet());       // Set security-related HTTP headers
-app.use(cors());         // Enable Cross-Origin Resource Sharing
+// Security and logging middlewares
+app.use(express.json());
+app.use(helmet());
+app.use(cors());
+app.use(morgan('dev'));
 
 // Rate limiting middleware to prevent abuse
 const limiter = rateLimit({
@@ -45,26 +46,23 @@ const limiter = rateLimit({
 });
 app.use(limiter);
 
-// Configure morgan for logging requests (optional)
-app.use(morgan('dev'));
-
-// Set up routes
-app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/privileges', privilegeRoutes);
-app.use('/api/statuses', statusRoutes);
-app.use('/api/courses', courseRoutes);
-app.use('/api/classes', classRoutes);
-app.use('/api/media-files', mediaFileRoutes);
-app.use('/api/enrollments', enrollmentRoutes);
-app.use('/api/progress', progressRoutes);
-app.use('/api/payments', paymentRoutes);
+// Set up routes with necessary authentication middleware
+app.use('/api/auth', authRoutes); // No auth required
+app.use('/api/users', authenticateToken, userRoutes);
+app.use('/api/privileges', authenticateToken, privilegeRoutes);
+app.use('/api/statuses', authenticateToken, statusRoutes);
+app.use('/api/courses', authenticateToken, courseRoutes);
+app.use('/api/classes', authenticateToken, classRoutes);
+app.use('/api/media-files', authenticateToken, mediaFileRoutes);
+app.use('/api/enrollments', authenticateToken, enrollmentRoutes);
+app.use('/api/progress', authenticateToken, progressRoutes);
+app.use('/api/payments', authenticateToken, paymentRoutes);
 
 // Error handling middleware (should be after all other app.use() calls)
 app.use(errorHandler);
 
 // Start the server
-const PORT = config.server.port || 5000;
+const PORT = process.env.PORT || 5000;
 
 const startServer = async () => {
   try {
@@ -89,5 +87,4 @@ if (process.env.NODE_ENV !== 'test') {
   startServer();
 }
 
-// Export the app for testing
 module.exports = app;

@@ -1,108 +1,110 @@
-// controllers/paymentController.js
-const { Payment, User, Course } = require('../config/db').models;
+const { MediaFile, Course } = require('../config/db').models;
+const { uploadToCDN, getSignedUrl } = require('../services/mediaService');
+const redisClient = require('../services/redisClient');
 
-// Create a new payment
-exports.createPayment = async (req, res) => {
-    const { user_id, course_id, amount, status, payment_gateway_response } = req.body;
+/**
+ * Create a new media file - Only accessible by teachers and admins
+ */
+exports.createMediaFile = async (req, res) => {
+    if (req.user.privilege_id !== 'teacher' && req.user.privilege_id !== 'admin') {
+        return res.status(403).json({ error: 'Insufficient privileges' });
+    }
+
+    const { course_id } = req.body;
 
     try {
-        const user = await User.findByPk(user_id);
-        if (!user) {
-            return res.status(404).json({ error: 'User not found' });
-        }
+        const filePath = await uploadToCDN(req.file);
+        const mediaFile = await MediaFile.create({ file_path: filePath, course_id });
 
-        const course = await Course.findByPk(course_id);
-        if (!course) {
-            return res.status(404).json({ error: 'Course not found' });
-        }
-
-        const payment = await Payment.create({
-            user_id,
-            course_id,
-            amount,
-            status,
-            payment_gateway_response
-        });
-
-        res.status(201).json(payment);
+        // Clear media files cache after adding a new file
+        await redisClient.del('all_media_files');
+        res.status(201).json(mediaFile);
     } catch (error) {
-        res.status(400).json({ error: 'Error creating payment' });
+        res.status(500).json({ error: 'Error uploading media file' });
     }
 };
 
-// Get all payments
-exports.getAllPayments = async (req, res) => {
+/**
+ * Retrieve all media files with caching - Accessible by all users
+ */
+exports.getAllMediaFiles = async (req, res) => {
+    const cacheKey = 'all_media_files';
+
     try {
-        const payments = await Payment.findAll({
-            include: [
-                { model: User, as: 'user', attributes: ['id', 'name', 'email'] },
-                { model: Course, as: 'course', attributes: ['id', 'title'] }
-            ]
-        });
-        res.json(payments);
+        const cachedMediaFiles = await redisClient.get(cacheKey);
+        if (cachedMediaFiles) return res.json(JSON.parse(cachedMediaFiles));
+
+        const mediaFiles = await MediaFile.findAll();
+        await redisClient.set(cacheKey, JSON.stringify(mediaFiles), 'EX', 3600); // Cache for 1 hour
+        res.json(mediaFiles);
     } catch (error) {
-        res.status(500).json({ error: 'Error fetching payments' });
+        res.status(500).json({ error: 'Error fetching media files' });
     }
 };
 
-// Get a payment by ID
-exports.getPaymentById = async (req, res) => {
+/**
+ * Retrieve a specific media file with a signed URL - Accessible by all users
+ */
+exports.getMediaFileById = async (req, res) => {
     const { id } = req.params;
 
     try {
-        const payment = await Payment.findByPk(id, {
-            include: [
-                { model: User, as: 'user', attributes: ['id', 'name', 'email'] },
-                { model: Course, as: 'course', attributes: ['id', 'title'] }
-            ]
-        });
+        const mediaFile = await MediaFile.findByPk(id);
+        if (!mediaFile) return res.status(404).json({ error: 'Media file not found' });
 
-        if (!payment) {
-            return res.status(404).json({ error: 'Payment not found' });
-        }
-
-        res.json(payment);
+        const signedUrl = await getSignedUrl(mediaFile.file_path);
+        res.json({ mediaFile, signedUrl });
     } catch (error) {
-        res.status(500).json({ error: 'Error fetching payment' });
+        res.status(500).json({ error: 'Error fetching media file' });
     }
 };
 
-// Update a payment
-exports.updatePayment = async (req, res) => {
+/**
+ * Update a media file - Only accessible by teachers and admins
+ */
+exports.updateMediaFile = async (req, res) => {
+    if (req.user.privilege_id !== 'teacher' && req.user.privilege_id !== 'admin') {
+        return res.status(403).json({ error: 'Insufficient privileges' });
+    }
+
     const { id } = req.params;
-    const { amount, status, payment_gateway_response } = req.body;
+    const { course_id } = req.body;
 
     try {
-        const payment = await Payment.findByPk(id);
-        if (!payment) {
-            return res.status(404).json({ error: 'Payment not found' });
-        }
+        const mediaFile = await MediaFile.findByPk(id);
+        if (!mediaFile) return res.status(404).json({ error: 'Media file not found' });
 
-        payment.amount = amount || payment.amount;
-        payment.status = status || payment.status;
-        payment.payment_gateway_response = payment_gateway_response || payment.payment_gateway_response;
+        mediaFile.course_id = course_id || mediaFile.course_id;
+        await mediaFile.save();
 
-        await payment.save();
-
-        res.json(payment);
+        // Clear media files cache after updating a file
+        await redisClient.del('all_media_files');
+        res.json(mediaFile);
     } catch (error) {
-        res.status(400).json({ error: 'Error updating payment' });
+        res.status(500).json({ error: 'Error updating media file' });
     }
 };
 
-// Delete a payment
-exports.deletePayment = async (req, res) => {
+/**
+ * Delete a media file - Only accessible by teachers and admins
+ */
+exports.deleteMediaFile = async (req, res) => {
+    if (req.user.privilege_id !== 'teacher' && req.user.privilege_id !== 'admin') {
+        return res.status(403).json({ error: 'Insufficient privileges' });
+    }
+
     const { id } = req.params;
 
     try {
-        const payment = await Payment.findByPk(id);
-        if (!payment) {
-            return res.status(404).json({ error: 'Payment not found' });
-        }
+        const mediaFile = await MediaFile.findByPk(id);
+        if (!mediaFile) return res.status(404).json({ error: 'Media file not found' });
 
-        await payment.destroy();
-        res.json({ message: 'Payment deleted successfully' });
+        await mediaFile.destroy();
+
+        // Clear media files cache after deleting a file
+        await redisClient.del('all_media_files');
+        res.json({ message: 'Media file deleted successfully' });
     } catch (error) {
-        res.status(500).json({ error: 'Error deleting payment' });
+        res.status(500).json({ error: 'Error deleting media file' });
     }
 };

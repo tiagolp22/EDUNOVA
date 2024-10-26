@@ -45,4 +45,14 @@ module.exports = {
      * Can be 'development', 'test', 'production', etc.
      */
     nodeEnv: env,
+
+    /**
+     * Redis Configuration
+     * Settings for Redis cache, used across the application to cache frequently accessed data.
+     */
+    redis: {
+        host: process.env.REDIS_HOST || 'localhost',
+        port: process.env.REDIS_PORT || 6379,
+        password: process.env.REDIS_PASSWORD || null,
+    },
 };
