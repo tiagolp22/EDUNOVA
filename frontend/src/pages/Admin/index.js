@@ -1,173 +1,751 @@
+import MenuAdmin from "components/MenuAdmin";
+
 export default function Admin({ t, language }) {
+
   return (
-    <main>
-      <link
-        href="https://fonts.googleapis.com/css?family=Material+Icons|Material+Icons+Outlined|Material+Icons+Two+Tone|Material+Icons+Round|Material+Icons+Sharp"
-        rel="stylesheet"
-      />
+    <div>
+      <div
+        x-data="{ sidebarOpen: false }"
+        className="flex h-screen bg-gray-200"
+      >
+     
 
-      <div className="bg-[--azul-claro] min-h-screen">
-        <div className="fixed bg-white text-blue-800 px-10 py-1 z-10 w-full">
-          <div className="flex items-center justify-between py-2 text-5x1">
-            <div className="font-bold text-blue-900 text-xl">
-              Admin<span className="text-orange-600">Panel</span>
-            </div>
-            <div className="flex items-center text-gray-500">
-              <span
-                className="material-icons-outlined p-2"
-                style={{ fontSize: 30 }}
-              >
-                search
-              </span>
-              <span
-                className="material-icons-outlined p-2"
-                style={{ fontSize: 30 }}
-              >
-                notifications
-              </span>
-              <div
-                className="bg-center bg-cover bg-no-repeat rounded-full inline-block h-12 w-12 ml-2"
-                style={{
-                  backgroundImage:
-                    "url(https://i.pinimg.com/564x/de/0f/3d/de0f3d06d2c6dbf29a888cf78e4c0323.jpg)",
-                }}
-              ></div>
-            </div>
-          </div>
-        </div>
+        <MenuAdmin t={t}/>
 
-        <div className="flex flex-row pt-24 px-10 pb-4">
-          <div className="w-2/12 mr-6">
-            <div className="bg-white rounded-xl shadow-lg mb-6 px-6 py-4">
-              <a
-                href=""
-                className="inline-block text-gray-600 hover:text-black my-4 w-full"
+        <div className="flex flex-col flex-1 overflow-hidden">
+          <header className="flex items-center justify-between px-6 py-4 bg-white border-b-4 border-indigo-600">
+            <div className="flex items-center">
+              <button
+                onClick="sidebarOpen = true"
+                className="text-gray-500 focus:outline-none lg:hidden"
               >
-                <span className="material-icons-outlined float-left pr-2">
-                  dashboard
-                </span>
-                Home
-                <span className="material-icons-outlined float-right">
-                  keyboard_arrow_right
-                </span>
-              </a>
-              <a
-                href=""
-                className="inline-block text-gray-600 hover:text-black my-4 w-full"
-              >
-                <span className="material-icons-outlined float-left pr-2">
-                  tune
-                </span>
-                Some menu item
-                <span className="material-icons-outlined float-right">
-                  keyboard_arrow_right
-                </span>
-              </a>
-              <a
-                href=""
-                className="inline-block text-gray-600 hover:text-black my-4 w-full"
-              >
-                <span className="material-icons-outlined float-left pr-2">
-                  file_copy
-                </span>
-                Another menu item
-                <span className="material-icons-outlined float-right">
-                  keyboard_arrow_right
-                </span>
-              </a>
-            </div>
-
-            <div className="bg-white rounded-xl shadow-lg mb-6 px-6 py-4">
-              <a
-                href=""
-                className="inline-block text-gray-600 hover:text-black my-4 w-full"
-              >
-                <span className="material-icons-outlined float-left pr-2">
-                  face
-                </span>
-                Profile
-                <span className="material-icons-outlined float-right">
-                  keyboard_arrow_right
-                </span>
-              </a>
-              <a
-                href=""
-                className="inline-block text-gray-600 hover:text-black my-4 w-full"
-              >
-                <span className="material-icons-outlined float-left pr-2">
-                  settings
-                </span>
-                Settings
-                <span className="material-icons-outlined float-right">
-                  keyboard_arrow_right
-                </span>
-              </a>
-              <a
-                href=""
-                className="inline-block text-gray-600 hover:text-black my-4 w-full"
-              >
-                <span className="material-icons-outlined float-left pr-2">
-                  power_settings_new
-                </span>
-                Log out
-                <span className="material-icons-outlined float-right">
-                  keyboard_arrow_right
-                </span>
-              </a>
-            </div>
-          </div>
-
-          <div className="w-10/12">
-            <div className="flex flex-row">
-              <div
-                className="bg-no-repeat bg-red-200 border border-red-300 rounded-xl w-7/12 mr-2 p-6"
-                style={{
-                  backgroundImage:
-                    "url(https://previews.dropbox.com/p/thumb/AAvyFru8elv-S19NMGkQcztLLpDd6Y6VVVMqKhwISfNEpqV59iR5sJaPD4VTrz8ExV7WU9ryYPIUW8Gk2JmEm03OLBE2zAeQ3i7sjFx80O-7skVlsmlm0qRT0n7z9t07jU_E9KafA9l4rz68MsaZPazbDKBdcvEEEQPPc3TmZDsIhes1U-Z0YsH0uc2RSqEb0b83A1GNRo86e-8TbEoNqyX0gxBG-14Tawn0sZWLo5Iv96X-x10kVauME-Mc9HGS5G4h_26P2oHhiZ3SEgj6jW0KlEnsh2H_yTego0grbhdcN1Yjd_rLpyHUt5XhXHJwoqyJ_ylwvZD9-dRLgi_fM_7j/p.png?fv_content=true&size_mode=5)",
-                  backgroundPosition: "90% center",
-                }}
-              >
-                <p className="text-5xl text-indigo-900">
-                  Welcome<strong>Lorem Ipsum</strong>
-                </p>
-                <span className="bg-red-300 text-xl text-white inline-block rounded-full mt-12 px-8 py-2">
-                  <strong>01:51</strong>
-                </span>
-              </div>
-
-              <div
-                className="bg-no-repeat bg-orange-200 border border-orange-300 rounded-xl w-5/12 ml-2 p-6"
-                style={{
-                  backgroundImage:
-                    "url(https://previews.dropbox.com/p/thumb/AAuwpqWfUgs9aC5lRoM_f-yi7OPV4txbpW1makBEj5l21sDbEGYsrC9sb6bwUFXTSsekeka5xb7_IHCdyM4p9XCUaoUjpaTSlKK99S_k4L5PIspjqKkiWoaUYiAeQIdnaUvZJlgAGVUEJoy-1PA9i6Jj0GHQTrF_h9MVEnCyPQ-kg4_p7kZ8Yk0TMTL7XDx4jGJFkz75geOdOklKT3GqY9U9JtxxvRRyo1Un8hOObbWQBS1eYE-MowAI5rNqHCE_e-44yXKY6AKJocLPXz_U4xp87K4mVGehFKC6dgk_i5Ur7gspuD7gRBDvd0sanJ9Ybr_6s2hZhrpad-2WFwWqSNkh/p.png?fv_content=true&size_mode=5)",
-                  backgroundPosition: "100% 40%",
-                }}
-              >
-                <p className="text-5xl text-indigo-900">
-                  Inbox <strong>23</strong>
-                </p>
-                <a
-                  href=""
-                  className="bg-orange-300 text-xl text-white underline hover:no-underline inline-block rounded-full mt-12 px-8 py-2"
+                <svg
+                  className="w-6 h-6"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
                 >
-                  <strong>See messages</strong>
-                </a>
+                  <path
+                    d="M4 6H20M4 12H20M4 18H11"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  ></path>
+                </svg>
+              </button>
+
+              <div className="relative mx-4 lg:mx-0">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3">
+                  <svg
+                    className="w-5 h-5 text-gray-500"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
+                    <path
+                      d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    ></path>
+                  </svg>
+                </span>
+
+                <input
+                  className="w-32 pl-10 pr-4 rounded-md form-input sm:w-64 focus:border-indigo-600"
+                  type="text"
+                  placeholder="Search"
+                />
               </div>
             </div>
-            <div className="flex flex-row h-64 mt-6">
-              <div className="bg-white rounded-xl shadow-lg px-6 py-4 w-4/12">
-                a
+
+            <div className="flex items-center">
+              <div x-data="{ notificationOpen: false }" className="relative">
+                {/* <button onClick="notificationOpen = ! notificationOpen"
+                            className="flex mx-4 text-gray-600 focus:outline-none">
+                            <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M15 17H20L18.5951 15.5951C18.2141 15.2141 18 14.6973 18 14.1585V11C18 8.38757 16.3304 6.16509 14 5.34142V5C14 3.89543 13.1046 3 12 3C10.8954 3 10 3.89543 10 5V5.34142C7.66962 6.16509 6 8.38757 6 11V14.1585C6 14.6973 5.78595 15.2141 5.40493 15.5951L4 17H9M15 17V18C15 19.6569 13.6569 21 12 21C10.3431 21 9 19.6569 9 18V17M15 17H9"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                </path>
+                            </svg>
+                        </button>
+     */}
+                {/* <div x-show="notificationOpen" @click="notificationOpen = false"
+                            className="fixed inset-0 z-10 w-full h-full" style="display: none;"></div> */}
+
+                <div
+                  x-show="notificationOpen"
+                  className="absolute right-0 z-10 mt-2 overflow-hidden bg-white rounded-lg shadow-xl w-80"
+                  style={{ width: "20rem", display: "none" }}
+                >
+                  <a
+                    href="#"
+                    className="flex items-center px-4 py-3 -mx-2 text-gray-600 hover:text-white hover:bg-indigo-600"
+                  >
+                    <img
+                      className="object-cover w-8 h-8 mx-1 rounded-full"
+                      src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=crop&amp;w=334&amp;q=80"
+                      alt="avatar"
+                    />
+                    <p className="mx-2 text-sm">
+                      <span className="font-bold" href="#">
+                        Sara Salah
+                      </span>{" "}
+                      replied on the{" "}
+                      <span className="font-bold text-indigo-400" href="#">
+                        Upload Image
+                      </span>{" "}
+                      artical . 2m
+                    </p>
+                  </a>
+                  <a
+                    href="#"
+                    className="flex items-center px-4 py-3 -mx-2 text-gray-600 hover:text-white hover:bg-indigo-600"
+                  >
+                    <img
+                      className="object-cover w-8 h-8 mx-1 rounded-full"
+                      src="https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=crop&amp;w=634&amp;q=80"
+                      alt="avatar"
+                    />
+                    <p className="mx-2 text-sm">
+                      <span className="font-bold" href="#">
+                        Slick Net
+                      </span>{" "}
+                      start following you . 45m
+                    </p>
+                  </a>
+                  <a
+                    href="#"
+                    className="flex items-center px-4 py-3 -mx-2 text-gray-600 hover:text-white hover:bg-indigo-600"
+                  >
+                    <img
+                      className="object-cover w-8 h-8 mx-1 rounded-full"
+                      src="https://images.unsplash.com/photo-1450297350677-623de575f31c?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=crop&amp;w=334&amp;q=80"
+                      alt="avatar"
+                    />
+                    <p className="mx-2 text-sm">
+                      <span className="font-bold" href="#">
+                        Jane Doe
+                      </span>{" "}
+                      Like Your reply on{" "}
+                      <span className="font-bold text-indigo-400" href="#">
+                        Test with TDD
+                      </span>{" "}
+                      artical . 1h
+                    </p>
+                  </a>
+                  <a
+                    href="#"
+                    className="flex items-center px-4 py-3 -mx-2 text-gray-600 hover:text-white hover:bg-indigo-600"
+                  >
+                    <img
+                      className="object-cover w-8 h-8 mx-1 rounded-full"
+                      src="https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=crop&amp;w=398&amp;q=80"
+                      alt="avatar"
+                    />
+                    <p className="mx-2 text-sm">
+                      <span className="font-bold" href="#">
+                        Abigail Bennett
+                      </span>{" "}
+                      start following you . 3h
+                    </p>
+                  </a>
+                </div>
               </div>
-              <div className="bg-white rounded-xl shadow-lg mx-6 px-6 py-4 w-4/12">
-                b
-              </div>
-              <div className="bg-white rounded-xl shadow-lg px-6 py-4 w-4/12">
-                c
+
+              <div x-data="{ dropdownOpen: false }" className="relative">
+                {/* <button @click="dropdownOpen = ! dropdownOpen"
+                            className="relative block w-8 h-8 overflow-hidden rounded-full shadow focus:outline-none">
+                            <img className="object-cover w-full h-full"
+                                src="https://images.unsplash.com/photo-1528892952291-009c663ce843?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=crop&amp;w=296&amp;q=80"
+                                alt="Your avatar">
+                        </button> */}
+                {/*     
+                        <div x-show="dropdownOpen" @click="dropdownOpen = false" className="fixed inset-0 z-10 w-full h-full"
+                            style="display: none;"></div> */}
+
+                <div
+                  x-show="dropdownOpen"
+                  className="absolute right-0 z-10 w-48 mt-2 overflow-hidden bg-white rounded-md shadow-xl"
+                  style={{ display: "none" }}
+                >
+                  <a
+                    href="#"
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-600 hover:text-white"
+                  >
+                    Profile
+                  </a>
+                  <a
+                    href="#"
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-600 hover:text-white"
+                  >
+                    Products
+                  </a>
+                  <a
+                    href="#"
+                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-indigo-600 hover:text-white"
+                  >
+                    Logout
+                  </a>
+                </div>
               </div>
             </div>
-          </div>
+          </header>
+          <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-200">
+            <div className="container px-6 py-8 mx-auto">
+              <h3 className="text-3xl font-medium text-gray-700">Dashboard</h3>
+
+              <div className="mt-4">
+                <div className="flex flex-wrap -mx-6">
+                  <div className="w-full px-6 sm:w-1/2 xl:w-1/3">
+                    <div className="flex items-center px-5 py-6 bg-white rounded-md shadow-sm">
+                      <div className="p-3 bg-indigo-600 bg-opacity-75 rounded-full">
+                        <svg
+                          className="w-8 h-8 text-white"
+                          viewBox="0 0 28 30"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M18.2 9.08889C18.2 11.5373 16.3196 13.5222 14 13.5222C11.6804 13.5222 9.79999 11.5373 9.79999 9.08889C9.79999 6.64043 11.6804 4.65556 14 4.65556C16.3196 4.65556 18.2 6.64043 18.2 9.08889Z"
+                            fill="currentColor"
+                          ></path>
+                          <path
+                            d="M25.2 12.0444C25.2 13.6768 23.9464 15 22.4 15C20.8536 15 19.6 13.6768 19.6 12.0444C19.6 10.4121 20.8536 9.08889 22.4 9.08889C23.9464 9.08889 25.2 10.4121 25.2 12.0444Z"
+                            fill="currentColor"
+                          ></path>
+                          <path
+                            d="M19.6 22.3889C19.6 19.1243 17.0927 16.4778 14 16.4778C10.9072 16.4778 8.39999 19.1243 8.39999 22.3889V26.8222H19.6V22.3889Z"
+                            fill="currentColor"
+                          ></path>
+                          <path
+                            d="M8.39999 12.0444C8.39999 13.6768 7.14639 15 5.59999 15C4.05359 15 2.79999 13.6768 2.79999 12.0444C2.79999 10.4121 4.05359 9.08889 5.59999 9.08889C7.14639 9.08889 8.39999 10.4121 8.39999 12.0444Z"
+                            fill="currentColor"
+                          ></path>
+                          <path
+                            d="M22.4 26.8222V22.3889C22.4 20.8312 22.0195 19.3671 21.351 18.0949C21.6863 18.0039 22.0378 17.9556 22.4 17.9556C24.7197 17.9556 26.6 19.9404 26.6 22.3889V26.8222H22.4Z"
+                            fill="currentColor"
+                          ></path>
+                          <path
+                            d="M6.64896 18.0949C5.98058 19.3671 5.59999 20.8312 5.59999 22.3889V26.8222H1.39999V22.3889C1.39999 19.9404 3.2804 17.9556 5.59999 17.9556C5.96219 17.9556 6.31367 18.0039 6.64896 18.0949Z"
+                            fill="currentColor"
+                          ></path>
+                        </svg>
+                      </div>
+
+                      <div className="mx-5">
+                        <h4 className="text-2xl font-semibold text-gray-700">
+                          8,282
+                        </h4>
+                        <div className="text-gray-500">New Users</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="w-full px-6 mt-6 sm:w-1/2 xl:w-1/3 sm:mt-0">
+                    <div className="flex items-center px-5 py-6 bg-white rounded-md shadow-sm">
+                      <div className="p-3 bg-orange-600 bg-opacity-75 rounded-full">
+                        <svg
+                          className="w-8 h-8 text-white"
+                          viewBox="0 0 28 28"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M4.19999 1.4C3.4268 1.4 2.79999 2.02681 2.79999 2.8C2.79999 3.57319 3.4268 4.2 4.19999 4.2H5.9069L6.33468 5.91114C6.33917 5.93092 6.34409 5.95055 6.34941 5.97001L8.24953 13.5705L6.99992 14.8201C5.23602 16.584 6.48528 19.6 8.97981 19.6H21C21.7731 19.6 22.4 18.9732 22.4 18.2C22.4 17.4268 21.7731 16.8 21 16.8H8.97983L10.3798 15.4H19.6C20.1303 15.4 20.615 15.1004 20.8521 14.6261L25.0521 6.22609C25.2691 5.79212 25.246 5.27673 24.991 4.86398C24.7357 4.45123 24.2852 4.2 23.8 4.2H8.79308L8.35818 2.46044C8.20238 1.83722 7.64241 1.4 6.99999 1.4H4.19999Z"
+                            fill="currentColor"
+                          ></path>
+                          <path
+                            d="M22.4 23.1C22.4 24.2598 21.4598 25.2 20.3 25.2C19.1403 25.2 18.2 24.2598 18.2 23.1C18.2 21.9402 19.1403 21 20.3 21C21.4598 21 22.4 21.9402 22.4 23.1Z"
+                            fill="currentColor"
+                          ></path>
+                          <path
+                            d="M9.1 25.2C10.2598 25.2 11.2 24.2598 11.2 23.1C11.2 21.9402 10.2598 21 9.1 21C7.9402 21 7 21.9402 7 23.1C7 24.2598 7.9402 25.2 9.1 25.2Z"
+                            fill="currentColor"
+                          ></path>
+                        </svg>
+                      </div>
+
+                      <div className="mx-5">
+                        <h4 className="text-2xl font-semibold text-gray-700">
+                          200,521
+                        </h4>
+                        <div className="text-gray-500">Total Orders</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="w-full px-6 mt-6 sm:w-1/2 xl:w-1/3 xl:mt-0">
+                    <div className="flex items-center px-5 py-6 bg-white rounded-md shadow-sm">
+                      <div className="p-3 bg-pink-600 bg-opacity-75 rounded-full">
+                        <svg
+                          className="w-8 h-8 text-white"
+                          viewBox="0 0 28 28"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            d="M6.99998 11.2H21L22.4 23.8H5.59998L6.99998 11.2Z"
+                            fill="currentColor"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linejoin="round"
+                          ></path>
+                          <path
+                            d="M9.79999 8.4C9.79999 6.08041 11.6804 4.2 14 4.2C16.3196 4.2 18.2 6.08041 18.2 8.4V12.6C18.2 14.9197 16.3196 16.8 14 16.8C11.6804 16.8 9.79999 14.9197 9.79999 12.6V8.4Z"
+                            stroke="currentColor"
+                            stroke-width="2"
+                          ></path>
+                        </svg>
+                      </div>
+
+                      <div className="mx-5">
+                        <h4 className="text-2xl font-semibold text-gray-700">
+                          215,542
+                        </h4>
+                        <div className="text-gray-500">Available Products</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-8"></div>
+
+              <div className="flex flex-col mt-8">
+                <div className="py-2 -my-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+                  <div className="inline-block min-w-full overflow-hidden align-middle border-b border-gray-200 shadow sm:rounded-lg">
+                    <table className="min-w-full">
+                      <thead>
+                        <tr>
+                          <th className="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
+                            Name
+                          </th>
+                          <th className="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
+                            Title
+                          </th>
+                          <th className="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
+                            Status
+                          </th>
+                          <th className="px-6 py-3 text-xs font-medium leading-4 tracking-wider text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-50">
+                            Role
+                          </th>
+                          <th className="px-6 py-3 border-b border-gray-200 bg-gray-50"></th>
+                        </tr>
+                      </thead>
+
+                      <tbody className="bg-white">
+                        <tr>
+                          <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
+                            <div className="flex items-center">
+                              <div className="flex-shrink-0 w-10 h-10">
+                                <img
+                                  className="w-10 h-10 rounded-full"
+                                  src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=facearea&amp;facepad=2&amp;w=256&amp;h=256&amp;q=80"
+                                  alt=""
+                                />
+                              </div>
+
+                              <div className="ml-4">
+                                <div className="text-sm font-medium leading-5 text-gray-900">
+                                  John Doe
+                                </div>
+                                <div className="text-sm leading-5 text-gray-500">
+                                  john@example.com
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+
+                          <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
+                            <div className="text-sm leading-5 text-gray-900">
+                              Software Engineer
+                            </div>
+                            <div className="text-sm leading-5 text-gray-500">
+                              Web dev
+                            </div>
+                          </td>
+
+                          <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
+                            <span className="inline-flex px-2 text-xs font-semibold leading-5 text-green-800 bg-green-100 rounded-full">
+                              Active
+                            </span>
+                          </td>
+
+                          <td className="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-no-wrap border-b border-gray-200">
+                            Owner
+                          </td>
+
+                          <td className="px-6 py-4 text-sm font-medium leading-5 text-right whitespace-no-wrap border-b border-gray-200">
+                            <a
+                              href="#"
+                              className="text-indigo-600 hover:text-indigo-900"
+                            >
+                              Edit
+                            </a>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
+                            <div className="flex items-center">
+                              <div className="flex-shrink-0 w-10 h-10">
+                                <img
+                                  className="w-10 h-10 rounded-full"
+                                  src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=facearea&amp;facepad=2&amp;w=256&amp;h=256&amp;q=80"
+                                  alt=""
+                                />
+                              </div>
+
+                              <div className="ml-4">
+                                <div className="text-sm font-medium leading-5 text-gray-900">
+                                  John Doe
+                                </div>
+                                <div className="text-sm leading-5 text-gray-500">
+                                  john@example.com
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+
+                          <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
+                            <div className="text-sm leading-5 text-gray-900">
+                              Software Engineer
+                            </div>
+                            <div className="text-sm leading-5 text-gray-500">
+                              Web dev
+                            </div>
+                          </td>
+
+                          <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
+                            <span className="inline-flex px-2 text-xs font-semibold leading-5 text-green-800 bg-green-100 rounded-full">
+                              Active
+                            </span>
+                          </td>
+
+                          <td className="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-no-wrap border-b border-gray-200">
+                            Owner
+                          </td>
+
+                          <td className="px-6 py-4 text-sm font-medium leading-5 text-right whitespace-no-wrap border-b border-gray-200">
+                            <a
+                              href="#"
+                              className="text-indigo-600 hover:text-indigo-900"
+                            >
+                              Edit
+                            </a>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
+                            <div className="flex items-center">
+                              <div className="flex-shrink-0 w-10 h-10">
+                                <img
+                                  className="w-10 h-10 rounded-full"
+                                  src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=facearea&amp;facepad=2&amp;w=256&amp;h=256&amp;q=80"
+                                  alt=""
+                                />
+                              </div>
+
+                              <div className="ml-4">
+                                <div className="text-sm font-medium leading-5 text-gray-900">
+                                  John Doe
+                                </div>
+                                <div className="text-sm leading-5 text-gray-500">
+                                  john@example.com
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+
+                          <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
+                            <div className="text-sm leading-5 text-gray-900">
+                              Software Engineer
+                            </div>
+                            <div className="text-sm leading-5 text-gray-500">
+                              Web dev
+                            </div>
+                          </td>
+
+                          <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
+                            <span className="inline-flex px-2 text-xs font-semibold leading-5 text-green-800 bg-green-100 rounded-full">
+                              Active
+                            </span>
+                          </td>
+
+                          <td className="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-no-wrap border-b border-gray-200">
+                            Owner
+                          </td>
+
+                          <td className="px-6 py-4 text-sm font-medium leading-5 text-right whitespace-no-wrap border-b border-gray-200">
+                            <a
+                              href="#"
+                              className="text-indigo-600 hover:text-indigo-900"
+                            >
+                              Edit
+                            </a>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
+                            <div className="flex items-center">
+                              <div className="flex-shrink-0 w-10 h-10">
+                                <img
+                                  className="w-10 h-10 rounded-full"
+                                  src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=facearea&amp;facepad=2&amp;w=256&amp;h=256&amp;q=80"
+                                  alt=""
+                                />
+                              </div>
+
+                              <div className="ml-4">
+                                <div className="text-sm font-medium leading-5 text-gray-900">
+                                  John Doe
+                                </div>
+                                <div className="text-sm leading-5 text-gray-500">
+                                  john@example.com
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+
+                          <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
+                            <div className="text-sm leading-5 text-gray-900">
+                              Software Engineer
+                            </div>
+                            <div className="text-sm leading-5 text-gray-500">
+                              Web dev
+                            </div>
+                          </td>
+
+                          <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
+                            <span className="inline-flex px-2 text-xs font-semibold leading-5 text-green-800 bg-green-100 rounded-full">
+                              Active
+                            </span>
+                          </td>
+
+                          <td className="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-no-wrap border-b border-gray-200">
+                            Owner
+                          </td>
+
+                          <td className="px-6 py-4 text-sm font-medium leading-5 text-right whitespace-no-wrap border-b border-gray-200">
+                            <a
+                              href="#"
+                              className="text-indigo-600 hover:text-indigo-900"
+                            >
+                              Edit
+                            </a>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
+                            <div className="flex items-center">
+                              <div className="flex-shrink-0 w-10 h-10">
+                                <img
+                                  className="w-10 h-10 rounded-full"
+                                  src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=facearea&amp;facepad=2&amp;w=256&amp;h=256&amp;q=80"
+                                  alt=""
+                                />
+                              </div>
+
+                              <div className="ml-4">
+                                <div className="text-sm font-medium leading-5 text-gray-900">
+                                  John Doe
+                                </div>
+                                <div className="text-sm leading-5 text-gray-500">
+                                  john@example.com
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+
+                          <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
+                            <div className="text-sm leading-5 text-gray-900">
+                              Software Engineer
+                            </div>
+                            <div className="text-sm leading-5 text-gray-500">
+                              Web dev
+                            </div>
+                          </td>
+
+                          <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
+                            <span className="inline-flex px-2 text-xs font-semibold leading-5 text-green-800 bg-green-100 rounded-full">
+                              Active
+                            </span>
+                          </td>
+
+                          <td className="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-no-wrap border-b border-gray-200">
+                            Owner
+                          </td>
+
+                          <td className="px-6 py-4 text-sm font-medium leading-5 text-right whitespace-no-wrap border-b border-gray-200">
+                            <a
+                              href="#"
+                              className="text-indigo-600 hover:text-indigo-900"
+                            >
+                              Edit
+                            </a>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
+                            <div className="flex items-center">
+                              <div className="flex-shrink-0 w-10 h-10">
+                                <img
+                                  className="w-10 h-10 rounded-full"
+                                  src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=facearea&amp;facepad=2&amp;w=256&amp;h=256&amp;q=80"
+                                  alt=""
+                                />
+                              </div>
+
+                              <div className="ml-4">
+                                <div className="text-sm font-medium leading-5 text-gray-900">
+                                  John Doe
+                                </div>
+                                <div className="text-sm leading-5 text-gray-500">
+                                  john@example.com
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+
+                          <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
+                            <div className="text-sm leading-5 text-gray-900">
+                              Software Engineer
+                            </div>
+                            <div className="text-sm leading-5 text-gray-500">
+                              Web dev
+                            </div>
+                          </td>
+
+                          <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
+                            <span className="inline-flex px-2 text-xs font-semibold leading-5 text-green-800 bg-green-100 rounded-full">
+                              Active
+                            </span>
+                          </td>
+
+                          <td className="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-no-wrap border-b border-gray-200">
+                            Owner
+                          </td>
+
+                          <td className="px-6 py-4 text-sm font-medium leading-5 text-right whitespace-no-wrap border-b border-gray-200">
+                            <a
+                              href="#"
+                              className="text-indigo-600 hover:text-indigo-900"
+                            >
+                              Edit
+                            </a>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
+                            <div className="flex items-center">
+                              <div className="flex-shrink-0 w-10 h-10">
+                                <img
+                                  className="w-10 h-10 rounded-full"
+                                  src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=facearea&amp;facepad=2&amp;w=256&amp;h=256&amp;q=80"
+                                  alt=""
+                                />
+                              </div>
+
+                              <div className="ml-4">
+                                <div className="text-sm font-medium leading-5 text-gray-900">
+                                  John Doe
+                                </div>
+                                <div className="text-sm leading-5 text-gray-500">
+                                  john@example.com
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+
+                          <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
+                            <div className="text-sm leading-5 text-gray-900">
+                              Software Engineer
+                            </div>
+                            <div className="text-sm leading-5 text-gray-500">
+                              Web dev
+                            </div>
+                          </td>
+
+                          <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
+                            <span className="inline-flex px-2 text-xs font-semibold leading-5 text-green-800 bg-green-100 rounded-full">
+                              Active
+                            </span>
+                          </td>
+
+                          <td className="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-no-wrap border-b border-gray-200">
+                            Owner
+                          </td>
+
+                          <td className="px-6 py-4 text-sm font-medium leading-5 text-right whitespace-no-wrap border-b border-gray-200">
+                            <a
+                              href="#"
+                              className="text-indigo-600 hover:text-indigo-900"
+                            >
+                              Edit
+                            </a>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
+                            <div className="flex items-center">
+                              <div className="flex-shrink-0 w-10 h-10">
+                                <img
+                                  className="w-10 h-10 rounded-full"
+                                  src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&amp;ixid=eyJhcHBfaWQiOjEyMDd9&amp;auto=format&amp;fit=facearea&amp;facepad=2&amp;w=256&amp;h=256&amp;q=80"
+                                  alt=""
+                                />
+                              </div>
+
+                              <div className="ml-4">
+                                <div className="text-sm font-medium leading-5 text-gray-900">
+                                  John Doe
+                                </div>
+                                <div className="text-sm leading-5 text-gray-500">
+                                  john@example.com
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+
+                          <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
+                            <div className="text-sm leading-5 text-gray-900">
+                              Software Engineer
+                            </div>
+                            <div className="text-sm leading-5 text-gray-500">
+                              Web dev
+                            </div>
+                          </td>
+
+                          <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
+                            <span className="inline-flex px-2 text-xs font-semibold leading-5 text-green-800 bg-green-100 rounded-full">
+                              Active
+                            </span>
+                          </td>
+
+                          <td className="px-6 py-4 text-sm leading-5 text-gray-500 whitespace-no-wrap border-b border-gray-200">
+                            Owner
+                          </td>
+
+                          <td className="px-6 py-4 text-sm font-medium leading-5 text-right whitespace-no-wrap border-b border-gray-200">
+                            <a
+                              href="#"
+                              className="text-indigo-600 hover:text-indigo-900"
+                            >
+                              Edit
+                            </a>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </main>
         </div>
       </div>
-    </main>
+    </div>
   );
 }

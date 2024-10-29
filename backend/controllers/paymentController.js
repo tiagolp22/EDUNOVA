@@ -1,110 +1,103 @@
-const { MediaFile, Course } = require('../config/db').models;
-const { uploadToCDN, getSignedUrl } = require('../services/mediaService');
-const redisClient = require('../services/redisClient');
+// controllers/paymentController.js
+
+const { Payment } = require("../config/db").models;
+const { validationResult } = require("express-validator");
 
 /**
- * Create a new media file - Only accessible by teachers and admins
+ * Create a new payment
  */
-exports.createMediaFile = async (req, res) => {
-    if (req.user.privilege_id !== 'teacher' && req.user.privilege_id !== 'admin') {
-        return res.status(403).json({ error: 'Insufficient privileges' });
-    }
+exports.createPayment = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
 
-    const { course_id } = req.body;
+  const { user_id, course_id, amount, status, payment_gateway_response } =
+    req.body;
 
-    try {
-        const filePath = await uploadToCDN(req.file);
-        const mediaFile = await MediaFile.create({ file_path: filePath, course_id });
-
-        // Clear media files cache after adding a new file
-        await redisClient.del('all_media_files');
-        res.status(201).json(mediaFile);
-    } catch (error) {
-        res.status(500).json({ error: 'Error uploading media file' });
-    }
+  try {
+    const payment = await Payment.create({
+      user_id,
+      course_id,
+      amount,
+      status,
+      payment_gateway_response,
+    });
+    res.status(201).json(payment);
+  } catch (error) {
+    res.status(500).json({ error: "Error creating payment" });
+  }
 };
 
 /**
- * Retrieve all media files with caching - Accessible by all users
+ * Get all payments
  */
-exports.getAllMediaFiles = async (req, res) => {
-    const cacheKey = 'all_media_files';
-
-    try {
-        const cachedMediaFiles = await redisClient.get(cacheKey);
-        if (cachedMediaFiles) return res.json(JSON.parse(cachedMediaFiles));
-
-        const mediaFiles = await MediaFile.findAll();
-        await redisClient.set(cacheKey, JSON.stringify(mediaFiles), 'EX', 3600); // Cache for 1 hour
-        res.json(mediaFiles);
-    } catch (error) {
-        res.status(500).json({ error: 'Error fetching media files' });
-    }
+exports.getAllPayments = async (req, res) => {
+  try {
+    const payments = await Payment.findAll();
+    res.json(payments);
+  } catch (error) {
+    res.status(500).json({ error: "Error fetching payments" });
+  }
 };
 
 /**
- * Retrieve a specific media file with a signed URL - Accessible by all users
+ * Get a payment by ID
  */
-exports.getMediaFileById = async (req, res) => {
-    const { id } = req.params;
+exports.getPaymentById = async (req, res) => {
+  const { id } = req.params;
 
-    try {
-        const mediaFile = await MediaFile.findByPk(id);
-        if (!mediaFile) return res.status(404).json({ error: 'Media file not found' });
+  try {
+    const payment = await Payment.findByPk(id);
+    if (!payment) return res.status(404).json({ error: "Payment not found" });
 
-        const signedUrl = await getSignedUrl(mediaFile.file_path);
-        res.json({ mediaFile, signedUrl });
-    } catch (error) {
-        res.status(500).json({ error: 'Error fetching media file' });
-    }
+    res.json(payment);
+  } catch (error) {
+    res.status(500).json({ error: "Error fetching payment" });
+  }
 };
 
 /**
- * Update a media file - Only accessible by teachers and admins
+ * Update a payment
  */
-exports.updateMediaFile = async (req, res) => {
-    if (req.user.privilege_id !== 'teacher' && req.user.privilege_id !== 'admin') {
-        return res.status(403).json({ error: 'Insufficient privileges' });
-    }
+exports.updatePayment = async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
 
-    const { id } = req.params;
-    const { course_id } = req.body;
+  const { id } = req.params;
+  const { amount, status, payment_gateway_response } = req.body;
 
-    try {
-        const mediaFile = await MediaFile.findByPk(id);
-        if (!mediaFile) return res.status(404).json({ error: 'Media file not found' });
+  try {
+    const payment = await Payment.findByPk(id);
+    if (!payment) return res.status(404).json({ error: "Payment not found" });
 
-        mediaFile.course_id = course_id || mediaFile.course_id;
-        await mediaFile.save();
+    payment.amount = amount || payment.amount;
+    payment.status = status || payment.status;
+    payment.payment_gateway_response =
+      payment_gateway_response || payment.payment_gateway_response;
 
-        // Clear media files cache after updating a file
-        await redisClient.del('all_media_files');
-        res.json(mediaFile);
-    } catch (error) {
-        res.status(500).json({ error: 'Error updating media file' });
-    }
+    await payment.save();
+    res.json(payment);
+  } catch (error) {
+    res.status(500).json({ error: "Error updating payment" });
+  }
 };
 
 /**
- * Delete a media file - Only accessible by teachers and admins
+ * Delete a payment
  */
-exports.deleteMediaFile = async (req, res) => {
-    if (req.user.privilege_id !== 'teacher' && req.user.privilege_id !== 'admin') {
-        return res.status(403).json({ error: 'Insufficient privileges' });
-    }
+exports.deletePayment = async (req, res) => {
+  const { id } = req.params;
 
-    const { id } = req.params;
+  try {
+    const payment = await Payment.findByPk(id);
+    if (!payment) return res.status(404).json({ error: "Payment not found" });
 
-    try {
-        const mediaFile = await MediaFile.findByPk(id);
-        if (!mediaFile) return res.status(404).json({ error: 'Media file not found' });
-
-        await mediaFile.destroy();
-
-        // Clear media files cache after deleting a file
-        await redisClient.del('all_media_files');
-        res.json({ message: 'Media file deleted successfully' });
-    } catch (error) {
-        res.status(500).json({ error: 'Error deleting media file' });
-    }
+    await payment.destroy();
+    res.json({ message: "Payment deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: "Error deleting payment" });
+  }
 };

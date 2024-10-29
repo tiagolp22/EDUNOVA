@@ -28,6 +28,9 @@
         "sign_up": "Save",
         "signing_in" : "Signing in...",
         "sign_in" : "Sign in",
+        "have-account": "Already have an account?",
+        "click_login": "Login here",
+        "please_fill_all_fields": "Please, fill all fields",
         
         "extrainfo":{
             "title": "Why choose EduNova?",
