@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import logo from "assets/imgs/EduNova_logo.png";
 import signup from "assets/imgs/signup.png";
 import Button from "components/Button/Button";
@@ -137,6 +137,11 @@ export default function Signup({ t }) {
                 <Button type="submit" disabled={loading} className="w-full">
                   {loading ? t("signing_up") : t("sign_up")}
                 </Button>
+
+                <p className="text-[0.7rem]">
+                  {t("have-account")}
+                  <Link to={"/login"}>{t("click_login")}</Link>
+                </p>
               </div>
             </form>
           </div>

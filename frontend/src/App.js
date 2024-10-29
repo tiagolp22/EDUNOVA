@@ -12,6 +12,7 @@ import Signin from "pages/Signin";
 import Admin from "pages/Admin";
 
 function App() {
+  // Translation
   const [language, setLanguage] = useState("en");
   const { t, i18n } = useTranslation();
   const [isLoading, setIsLoading] = useState(true);
@@ -34,6 +35,8 @@ function App() {
   if (isLoading) {
     return <div>Loading translations...</div>;
   }
+  //End of translation
+  //Login
 
   return (
     <BrowserRouter>
