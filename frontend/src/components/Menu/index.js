@@ -1,7 +1,15 @@
 import logo from "assets/imgs/EduNova_logo.gif";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 
 export default function Menu({ t, handleTrans, language }) {
+  const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    navigate("/");
+  };
+
   return (
     <header>
       <nav className="flex flex-wrap items-center justify-between p-3 bg-[--azul-escuro]">
@@ -28,7 +36,7 @@ export default function Menu({ t, handleTrans, language }) {
             />
           </button>
         </div>
-        <div className=" toggle hidden w-full md:w-auto md:flex text-[--amarelo] text-right text-bold mt-3 md:mt-0 md:border-none">
+        <div className="toggle hidden w-full md:w-auto md:flex text-[--amarelo] text-right text-bold mt-3 md:mt-0 md:border-none">
           <NavLink
             to="/"
             className="block md:inline-block hover:text-blue-500 px-3 py-3 md:border-none"
@@ -47,7 +55,6 @@ export default function Menu({ t, handleTrans, language }) {
           >
             {t("nav_about")}
           </NavLink>
-
           <NavLink
             to="/contactUs"
             className="block md:inline-block hover:text-blue-500 px-3 py-3 md:border-none"
@@ -57,15 +64,29 @@ export default function Menu({ t, handleTrans, language }) {
         </div>
 
         <div className="toggle w-full text-end hidden md:flex md:w-auto px-2 py-2 md:rounded">
-          <NavLink to="/signup">
-            <div className="flex justify-end">
-              <div className="flex items-center h-10 w-30 rounded-md bg-[--amarelo] text-[--azul-escuro] font-medium p-2">
-                Login / Sign up
-              </div>
+          {user ? (
+            <div className="flex items-center text-[--amarelo]">
+              <p className="mr-4">
+                {t("Hello")}, {user.username}
+              </p>
+              <button
+                onClick={handleLogout}
+                className="text-[--amarelo] hover:text-blue-500"
+              >
+                logout
+              </button>
             </div>
-          </NavLink>
+          ) : (
+            <NavLink to="/signup">
+              <div className="flex justify-end">
+                <div className="flex items-center h-10 w-30 rounded-md bg-[--amarelo] text-[--azul-escuro] font-medium p-2">
+                  Login / Sign up
+                </div>
+              </div>
+            </NavLink>
+          )}
 
-          <div className="Flex  top-0 right-0  mx-6 text-[#446ca2]">
+          <div className="Flex top-0 right-0 mx-6 text-[#446ca2]">
             {language === "en" ? (
               <button
                 onClick={() => handleTrans("pt")}
