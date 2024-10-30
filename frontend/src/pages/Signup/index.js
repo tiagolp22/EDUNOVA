@@ -7,7 +7,7 @@ import Button from "components/Button/Button";
 export default function Signup({ t }) {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    name: "",
+    username: "", // Changed from name to username
     email: "",
     password: "",
     confirmPassword: "",
@@ -25,7 +25,7 @@ export default function Signup({ t }) {
 
   const validateForm = () => {
     if (
-      !formData.name ||
+      !formData.username || // Changed from name to username
       !formData.email ||
       !formData.password ||
       !formData.confirmPassword
@@ -39,7 +39,8 @@ export default function Signup({ t }) {
       return false;
     }
 
-    if (formData.password.length < 6) {
+    if (formData.password.length < 8) {
+      // Updated to match model validation
       setError(t("password_too_short"));
       return false;
     }
@@ -55,15 +56,16 @@ export default function Signup({ t }) {
 
     try {
       setLoading(true);
-      const response = await fetch("http://localhost:5000/api/users/register", {
+      const response = await fetch("http://localhost:5000/api/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name: formData.name,
+          username: formData.username, // Changed from name to username
           email: formData.email,
           password: formData.password,
+          privilege_id: 3,
         }),
       });
 
@@ -104,9 +106,9 @@ export default function Signup({ t }) {
                 <input
                   className="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white"
                   type="text"
-                  placeholder={t("signup_name")}
-                  name="name"
-                  value={formData.name}
+                  placeholder={t("signup_username")} // Updated placeholder
+                  name="username" // Changed from name to username
+                  value={formData.username} // Changed from name to username
                   onChange={handleChange}
                 />
                 <input
