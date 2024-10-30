@@ -8,7 +8,7 @@ const config = require("../config/config");
 /**
  * User registration controller
  * Creates a new user account with the provided credentials.
- * 
+ *
  * @param {Object} req - Express request object
  * @param {Object} req.body - Request body containing user data
  * @param {string} req.body.username - User's chosen username
@@ -27,26 +27,24 @@ exports.register = async (req, res) => {
       return res.status(400).json({
         error: "All fields are required",
         details: {
-          message: "Username, email and password are required"
-        }
+          message: "Username, email and password are required",
+        },
       });
     }
 
     // Check for existing user with same email or username
     const existingUser = await db.User.findOne({
       where: {
-        [db.Sequelize.Op.or]: [
-          { email },
-          { username }
-        ]
-      }
+        [db.Sequelize.Op.or]: [{ email }, { username }],
+      },
     });
 
     if (existingUser) {
       return res.status(400).json({
-        error: existingUser.email === email 
-          ? "Email already registered" 
-          : "Username already taken"
+        error:
+          existingUser.email === email
+            ? "Email already registered"
+            : "Username already taken",
       });
     }
 
@@ -55,19 +53,20 @@ exports.register = async (req, res) => {
       return res.status(400).json({
         error: "Invalid password",
         details: {
-          message: "Password must be between 8 and 128 characters"
-        }
+          message: "Password must be between 8 and 128 characters",
+        },
       });
     }
 
     // Hash password before storing
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create new user record
+    // Create new user record with default privilege
     const newUser = await db.User.create({
       username,
       email,
-      password: hashedPassword
+      password: hashedPassword,
+      privilege_id: 3, // Default to subscriber
     });
 
     // Prepare response (excluding password)
@@ -76,9 +75,8 @@ exports.register = async (req, res) => {
 
     res.status(201).json({
       message: "User registered successfully",
-      user: userResponse
+      user: userResponse,
     });
-
   } catch (error) {
     console.error("Error creating user:", error);
 
@@ -86,10 +84,10 @@ exports.register = async (req, res) => {
     if (error.name === "SequelizeValidationError") {
       return res.status(400).json({
         error: "Validation error",
-        details: error.errors.map(err => ({
+        details: error.errors.map((err) => ({
           field: err.path,
-          message: err.message
-        }))
+          message: err.message,
+        })),
       });
     }
 
@@ -97,17 +95,18 @@ exports.register = async (req, res) => {
     if (error.name === "SequelizeUniqueConstraintError") {
       return res.status(400).json({
         error: "Duplicate entry",
-        details: error.errors.map(err => ({
+        details: error.errors.map((err) => ({
           field: err.path,
-          message: err.message
-        }))
+          message: err.message,
+        })),
       });
     }
 
     // Handle unexpected errors
     res.status(500).json({
       error: "Internal Server Error: Unable to create user",
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      details:
+        process.env.NODE_ENV === "development" ? error.message : undefined,
     });
   }
 };
@@ -115,7 +114,7 @@ exports.register = async (req, res) => {
 /**
  * User authentication controller
  * Validates user credentials and returns a JWT token upon successful authentication.
- * 
+ *
  * @param {Object} req - Express request object
  * @param {Object} req.body - Request body containing login credentials
  * @param {string} req.body.email - User's email address
@@ -133,19 +132,21 @@ exports.login = async (req, res) => {
       return res.status(400).json({
         error: "All fields are required",
         details: {
-          message: "Email and password are required"
-        }
+          message: "Email and password are required",
+        },
       });
     }
 
     // Find user and include privilege information
     const user = await db.User.findOne({
       where: { email },
-      include: [{
-        model: db.Privilege,
-        as: "privilege",
-        attributes: ["name", "level"]
-      }]
+      include: [
+        {
+          model: db.Privilege,
+          as: "privilege",
+          attributes: ["name"], // Only include the name of the privilege
+        },
+      ],
     });
 
     // Generic authentication error for security
@@ -153,8 +154,8 @@ exports.login = async (req, res) => {
       return res.status(404).json({
         error: "Authentication failed",
         details: {
-          message: "Invalid email or password"
-        }
+          message: "Invalid email or password",
+        },
       });
     }
 
@@ -164,19 +165,23 @@ exports.login = async (req, res) => {
       return res.status(401).json({
         error: "Authentication failed",
         details: {
-          message: "Invalid email or password"
-        }
+          message: "Invalid email or password",
+        },
       });
     }
 
     // Generate authentication token
-    const token = jwt.sign({
-      id: user.id,
-      email: user.email,
-      privilege: user.privilege?.level
-    }, config.jwt.secret, {
-      expiresIn: config.jwt.expiration
-    });
+    const token = jwt.sign(
+      {
+        id: user.id,
+        email: user.email,
+        privilege_id: user.privilege_id,
+      },
+      config.jwt.secret,
+      {
+        expiresIn: config.jwt.expiration,
+      }
+    );
 
     // Send successful response
     res.json({
@@ -186,15 +191,17 @@ exports.login = async (req, res) => {
         id: user.id,
         username: user.username,
         email: user.email,
-        privilege: user.privilege
-      }
+        privilege: {
+          name: user.privilege?.name,
+        },
+      },
     });
-
   } catch (error) {
     console.error("Error during login:", error);
     res.status(500).json({
       error: "Internal Server Error: Unable to log in",
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      details:
+        process.env.NODE_ENV === "development" ? error.message : undefined,
     });
   }
 };

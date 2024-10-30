@@ -18,7 +18,6 @@ router.post(
     body("password")
       .isLength({ min: 8, max: 128 }) // Updated to match model requirements
       .withMessage("Password must be between 8 and 128 characters"),
-    body("privilege_id").isInt().withMessage("Privilege ID must be an integer"),
   ],
   authController.register
 );

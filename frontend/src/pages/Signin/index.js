@@ -37,7 +37,8 @@ export default function Signin({ t }) {
 
     try {
       setLoading(true);
-      const response = await fetch("http://localhost:5000/api/login", {
+      const response = await fetch("http://localhost:5000/api/auth/login", {
+        // URL corrigida
         method: "POST",
         headers: {
           "Content-Type": "application/json",
