@@ -12,9 +12,17 @@ services:
       - NODE_ENV=development
       - CHOKIDAR_USEPOLLING=true
       - WATCHPACK_POLLING=true
+      - FAST_REFRESH=true
+      - WDS_SOCKET_PORT=0
     command: npm start
     networks:
       - app-network
+    # Adiciona healthcheck para o frontend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   backend:
     build:
@@ -31,6 +39,7 @@ services:
       - JWT_SECRET=mysecretkey
       - JWT_EXPIRATION=36000
       - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true  # Adiciona polling para nodemon também
     depends_on:
       - db
       - redis
@@ -40,6 +49,12 @@ services:
     command: npm run dev
     networks:
       - app-network
+    # Adiciona healthcheck para o backend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   db:
     image: postgres:13
@@ -53,6 +68,12 @@ services:
       - pgdata:/var/lib/postgresql/data
     networks:
       - app-network
+    # Adiciona healthcheck para o postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:alpine
@@ -60,6 +81,12 @@ services:
       - "6379:6379"
     networks:
       - app-network
+    # Adiciona healthcheck para o redis
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
 volumes:
   pgdata:

@@ -18,7 +18,11 @@ const { sequelize, testConnection } = require("./config/db");
 dotenv.config();
 
 // Import routes
+// const authRoutes = require("./routes/auth");
 const authRoutes = require("./routes/auth");
+console.log("authRoutes type:", typeof authRoutes);
+console.log("authRoutes is router?", authRoutes instanceof express.Router);
+
 const userRoutes = require("./routes/users");
 const privilegeRoutes = require("./routes/privileges");
 const statusRoutes = require("./routes/statuses");
@@ -28,6 +32,8 @@ const mediaFileRoutes = require("./routes/mediaFiles");
 const enrollmentRoutes = require("./routes/enrollments");
 const progressRoutes = require("./routes/progress");
 const paymentRoutes = require("./routes/payments");
+
+
 
 // Import error handling middleware
 const errorHandler = require("./middleware/errorHandler");

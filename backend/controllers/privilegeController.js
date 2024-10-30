@@ -5,9 +5,9 @@ const redisClient = require("../services/redisClient");
  * Create a new privilege - Only accessible by admins
  */
 exports.createPrivilege = async (req, res) => {
-  // if (req.user.privilege_id !== 'admin') {
-  //     return res.status(403).json({ error: 'Only admins can create privileges' });
-  // }
+  if (req.user.privilege_id !== 'admin') {
+      return res.status(403).json({ error: 'Only admins can create privileges' });
+  }
 
   const { name } = req.body;
   console.log(name, "name");
@@ -27,9 +27,9 @@ exports.createPrivilege = async (req, res) => {
  * Retrieve all privileges with caching - Accessible by admins
  */
 exports.getAllPrivileges = async (req, res) => {
-  if (req.user.privilege_id !== "admin") {
-    return res.status(403).json({ error: "Only admins can view privileges" });
-  }
+  // if (req.user.privilege_id !== "admin") {
+  //   return res.status(403).json({ error: "Only admins can view privileges" });
+  // }
 
   const cacheKey = "all_privileges";
 
