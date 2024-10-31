@@ -33,8 +33,6 @@ const enrollmentRoutes = require("./routes/enrollments");
 const progressRoutes = require("./routes/progress");
 const paymentRoutes = require("./routes/payments");
 
-
-
 // Import error handling middleware
 const errorHandler = require("./middleware/errorHandler");
 const authenticateToken = require("./middleware/auth"); // Middleware de autenticação
@@ -47,14 +45,22 @@ app.use(morgan("dev"));
 
 // Rate limiting middleware to prevent abuse
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 1000, // Limit each IP to 1000 requests per windowMs
+  windowMs: 24 * 60 * 60 * 1000, // 24 hours in milliseconds (24h * 60min * 60sec * 1000ms)
+  max: 10000, // Increased limit to 10000 requests per 24h period
+  message: {
+    error: "Too many requests from this IP, please try again in 24 hours",
+    retryAfter: "24 hours",
+  },
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 });
+
+// Apply rate limiting to all routes
 app.use(limiter);
 
 // Set up routes with necessary authentication middleware
 app.use("/api/auth", authRoutes); // No auth required
-app.use("/api/users", authenticateToken, userRoutes);
+app.use("/api/users", userRoutes);
 app.use("/api/privileges", authenticateToken, privilegeRoutes);
 app.use("/api/statuses", authenticateToken, statusRoutes);
 app.use("/api/courses", authenticateToken, courseRoutes);

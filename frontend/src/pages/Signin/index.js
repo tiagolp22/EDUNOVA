@@ -51,16 +51,22 @@ export default function Signin({ t }) {
 
       const data = await response.json();
 
+      console.log("ser: ", data.user);
+
       if (!response.ok) {
         throw new Error(data.error || "Invalid credentials");
       }
 
-      // Salvar o token no localStorage
+      // Save token to the localStorage
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
 
-      // Redirecionar para a página principal após login
-      navigate("/");
+      // Redirect after login
+      if (data.user.privilege_id === 1) {
+        navigate("/admin");
+      } else {
+        navigate("/");
+      }
     } catch (err) {
       setError(err.message);
     } finally {
