@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS public.users (
     password TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW(),
+    birthday DATE,  -- Adiciona a coluna para armazenar data de aniversário
     privilege_id INTEGER REFERENCES public.privileges(id) ON DELETE NO ACTION
 );
 
