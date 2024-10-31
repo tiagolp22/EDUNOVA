@@ -51,6 +51,8 @@ export default function Signin({ t }) {
 
       const data = await response.json();
 
+      console.log("ser: ", data.user);
+
       if (!response.ok) {
         throw new Error(data.error || "Invalid credentials");
       }
