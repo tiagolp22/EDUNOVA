@@ -22,6 +22,7 @@
 
         "signup_create" : "Create your account",
         "signup_name": "Your Name",
+        "signup_birthday": "YYYY-MM-DD",
         "signup_password": "Your password",
         "signup_password_confirm": "Confirm your password",
         "signing_up" : "Signing up...",

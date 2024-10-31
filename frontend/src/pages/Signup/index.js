@@ -7,10 +7,11 @@ import Button from "components/Button/Button";
 export default function Signup({ t }) {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    username: "", // Changed from name to username
+    username: "",
     email: "",
     password: "",
     confirmPassword: "",
+    birthday: "",
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -25,10 +26,11 @@ export default function Signup({ t }) {
 
   const validateForm = () => {
     if (
-      !formData.username || // Changed from name to username
+      !formData.username ||
       !formData.email ||
       !formData.password ||
-      !formData.confirmPassword
+      !formData.confirmPassword ||
+      !formData.birthday // Adicionando validação do birthday
     ) {
       setError(t("please_fill_all_fields"));
       return false;
@@ -40,8 +42,17 @@ export default function Signup({ t }) {
     }
 
     if (formData.password.length < 8) {
-      // Updated to match model validation
       setError(t("password_too_short"));
+      return false;
+    }
+
+    // Opcional: Adicionar validação de idade mínima
+    const birthDate = new Date(formData.birthday);
+    const today = new Date();
+    const age = today.getFullYear() - birthDate.getFullYear();
+    if (age < 13) {
+      // exemplo de idade mínima
+      setError(t("minimum_age_required"));
       return false;
     }
 
@@ -62,9 +73,10 @@ export default function Signup({ t }) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          username: formData.username, // Changed from name to username
+          username: formData.username,
           email: formData.email,
           password: formData.password,
+          birthday: formData.birthday, // Adicionando birthday
           privilege_id: 3,
         }),
       });
@@ -111,6 +123,16 @@ export default function Signup({ t }) {
                   value={formData.username}
                   onChange={handleChange}
                 />
+
+                <input
+                  className="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white mt-5"
+                  type="date"
+                  placeholder={t("signup_birthday")}
+                  name="birthday"
+                  value={formData.birthday}
+                  onChange={handleChange}
+                />
+
                 <input
                   className="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white mt-5"
                   type="email"
@@ -119,6 +141,7 @@ export default function Signup({ t }) {
                   value={formData.email}
                   onChange={handleChange}
                 />
+
                 <input
                   className="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white mt-5"
                   type="password"

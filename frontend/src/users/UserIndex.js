@@ -175,7 +175,7 @@ export default function UserIndex({ t }) {
                   </td>
                   <td className="px-4 py-2 whitespace-nowrap">
                     <Link to={`/user/${user.id}`}>
-                      <Button>{t("btnEditer")}</Button>
+                      <Button>{t("btn_edit")}</Button>
                     </Link>
                   </td>
                 </tr>

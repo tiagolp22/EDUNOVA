@@ -10,6 +10,9 @@
         "btn_aboutUs": "Sobre nós",
         "btn_info": " + info",
         "btn_back": " Voltar",
+        "btn_edit": "Editar",
+        "btn_update": "Update",
+      
 
         "nav_contact" : "Contato",
         "nav_services" : "Serviços",
@@ -21,6 +24,7 @@
 
         "signup_create" : "Inscreva-se",
         "signup_name": "Seu nome",
+        "signup_birthday": "AAAA-MM-DD",
         "signup_password": "Sua senha",
         "signup_password_confirm": "Confirme sua senha",
         "signing_up" : "Criando...",
