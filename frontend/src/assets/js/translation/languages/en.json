@@ -11,6 +11,9 @@
         "btn_edit": "Edit",
         "btn_update": "Update",
         "btn_back": "Back",
+        "btn_save": "Save",
+        "btn_cancel": "Cancel",
+
 
         "nav_contact" : "Contact",
         "nav_services" : "Services",
@@ -74,7 +77,17 @@
           "iconsSection_time" : "Time Efficiency",
           "iconsSection_value" : "Best value for money",
           "iconsSection_expertise" : "Expertise in the field",
-          "iconsSection_friendly" : "User friendly"
+          "iconsSection_friendly" : "User friendly",
+
+          "dash_greeting": "Hello",
+          "user_list_titre": "All users",
+          "user.username" : "Name",
+          "user.email" : "Email",
+          "user.birthday": "Birthday",
+          "user.privilege": "Privilege",
+          "user.actions": "Actions",
+
+          "dash_createCourse": "Create a course"
 
     } 
 }

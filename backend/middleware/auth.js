@@ -30,9 +30,11 @@ const authenticateToken = async (req, res, next) => {
     try {
       // Check if token exists in Redis
       const storedToken = await redisClient.get(`auth_token_${decoded.id}`);
-      
+
       if (!storedToken || storedToken !== token) {
-        return res.status(401).json({ error: "Session expired or invalidated" });
+        return res
+          .status(401)
+          .json({ error: "Session expired or invalidated" });
       }
 
       // Use models directly from the imported db config

@@ -95,6 +95,25 @@ router.delete("/:id", async (req, res) => {
 
 // Update users
 router.get("/:id", userController.getUserById);
-router.put("/:id", userController.updateUser);
+router.put(
+  "/:id",
+  async (req, res, next) => {
+    try {
+      // Verify if the user is admin or if they are trying to update their own profile
+      if (
+        req.user.privilege?.name !== "admin" &&
+        req.user.id !== parseInt(req.params.id)
+      ) {
+        return res
+          .status(403)
+          .json({ error: "Unauthorized to update this user" });
+      }
+      next();
+    } catch (error) {
+      next(error);
+    }
+  },
+  userController.updateUser
+);
 
 module.exports = router;
