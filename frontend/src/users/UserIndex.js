@@ -63,6 +63,8 @@ export default function UserIndex({ t }) {
       }
 
       const data = await response.json();
+      console.log("data: ", data);
+
       setUsers(data);
       setError(null);
     } catch (err) {
@@ -272,7 +274,7 @@ export default function UserIndex({ t }) {
         <h2 className="mb-[2rem] p-3">{t("user_list_titre")}</h2>
 
         <div className="overflow-x-auto">
-          <table className="w-full divide-y divide-gray-200 bg-[--azul-escuro] mt-4 rounded-lg mb-[4rem]">
+          <table className="w-full divide-y  text-center divide-gray-200 bg-[--azul-escuro] mt-4 rounded-lg mb-[4rem]">
             <thead>
               <tr>
                 <th

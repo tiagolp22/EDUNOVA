@@ -10,6 +10,8 @@ import Signup from "pages/Signup";
 import NotFound from "pages/NotFound";
 import Signin from "pages/Signin";
 import Admin from "pages/Admin";
+import CoursesIndex from "pages/Courses/CoursesIndex";
+import UserIndex from "users/UserIndex";
 
 function App() {
   // Translation
@@ -36,7 +38,6 @@ function App() {
     return <div>Loading translations...</div>;
   }
   //End of translation
-  //Login
 
   return (
     <BrowserRouter>
@@ -52,7 +53,14 @@ function App() {
           path="/course/:id"
           element={<CourseShowById t={t} language={language} />}
         />
-        <Route path="/admin" element={<Admin t={t} language={language} />} />
+
+        <Route path="/admin" element={<Admin t={t} language={language} />}>
+          <Route
+            path="users/all"
+            element={<UserIndex t={t} language={language} />}
+          />
+          <Route path="courses/all" element={<CoursesIndex />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   );
