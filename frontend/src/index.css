@@ -8,6 +8,7 @@
 @tailwind components;
 @tailwind utilities;
 
+
 :root {
   --azul-escuro: #041833;
   --azul-medio: #446ca2;

@@ -15,124 +15,173 @@ const config = require("../config/config");
  * @param {Object} res - Express response object
  */
 exports.getAllUsers = async (req, res) => {
-
   try {
     // Check if user exists in request
     if (!req.user) {
-      console.log("No user in request");
+      console.log("No authenticated user in request");
       return res.status(401).json({ error: "No authenticated user" });
     }
 
-    // Log privilege ID for debugging
-    console.log("User privilege_id:", req.user.privilege_id);
-
     // Check admin privileges
     const userPrivilege = await Privilege.findByPk(req.user.privilege_id);
-    console.log("User privilege found:", userPrivilege);
 
     if (!userPrivilege || userPrivilege.name !== "admin") {
-      console.log("User is not admin:", userPrivilege?.name);
       return res.status(403).json({ error: "Only admins can view users" });
     }
 
-    // Fetch all users with their privileges
-    console.log("Fetching users...");
+    // First try to get from cache
+    const cachedUsers = await redisClient.get("all_users");
+    if (cachedUsers) {
+      return res.json(JSON.parse(cachedUsers));
+    }
+
+    // Fetch all users with their privileges if not in cache
     const users = await User.findAll({
-      attributes: ["id", "name", "email", "privilege_id"],
+      attributes: [
+        "id",
+        "username",
+        "email",
+        "birthday",
+        "privilege_id",
+        "createdAt",
+        "updatedAt",
+      ],
       include: [
         {
           model: Privilege,
+          as: "privilege",
           attributes: ["name"],
         },
       ],
     });
-    console.log("Users found:", users.length);
 
     // Format user data for response
     const formattedUsers = users.map((user) => ({
       id: user.id,
-      username: user.name,
-      courriel: user.email,
-      privilege_id: user.Privilege?.name || user.privilege_id,
+      username: user.username,
+      email: user.email,
+      birthday: user.birthday,
+      privilege: user.privilege?.name || "no privilege",
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
     }));
-    console.log("Formatted users:", formattedUsers.length);
+
+    // Cache for 5 minutes
+    await redisClient.set(
+      "all_users",
+      JSON.stringify(formattedUsers),
+      "EX",
+      300
+    );
 
     return res.json(formattedUsers);
   } catch (error) {
-    console.error("Error in getAllUsers:", error);
+    console.error("Error fetching users:", error);
     return res.status(500).json({
       error: "Error fetching users",
-      details: error.message,
-      stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
+      details:
+        process.env.NODE_ENV === "development" ? error.message : undefined,
     });
   }
 };
 
 /**
- * User registration
+ * Update user information
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
  */
-exports.register = async (req, res) => {
-  const { name, email, password } = req.body;
+exports.updateUser = async (req, res) => {
+  const { id } = req.params;
+  const { username, email, birthday, password, privilege_id } = req.body;
 
   try {
-    // Check if user already exists
-    const existingUser = await User.findOne({ where: { email } });
-    if (existingUser) {
-      return res.status(400).json({ error: "User already exists" });
+    // Check if the requesting user is an admin or the user themselves
+    if (req.user.privilege_id !== "admin" && req.user.id !== parseInt(id)) {
+      return res
+        .status(403)
+        .json({ error: "Unauthorized to update this user" });
     }
 
-    // Hash password and create user
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = await User.create({
-      name,
-      email,
-      password: hashedPassword,
-    });
-
-    // Remove password from response
-    const { password: _, ...userWithoutPassword } = newUser.toJSON();
-    res.status(201).json(userWithoutPassword);
-  } catch (error) {
-    res.status(500).json({ error: "Error creating user" });
-  }
-};
-
-/**
- * User login
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- */
-exports.login = async (req, res) => {
-  const { email, password } = req.body;
-
-  try {
-    // Find user by email
-    const user = await User.findOne({ where: { email } });
+    // Find the user
+    const user = await User.findByPk(id);
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
 
-    // Validate password
-    const validPassword = await bcrypt.compare(password, user.password);
-    if (!validPassword) {
-      return res.status(401).json({ error: "Invalid password" });
+    // Prepare update object
+    const updateData = {};
+
+    // Only update fields that are provided and different from current values
+    if (username && username !== user.username) {
+      // Check if username is already taken
+      const existingUsername = await User.findOne({ where: { username } });
+      if (existingUsername && existingUsername.id !== parseInt(id)) {
+        return res.status(400).json({ error: "Username already taken" });
+      }
+      updateData.username = username;
     }
 
-    // Generate JWT token
-    const token = jwt.sign(
-      {
-        id: user.id,
-        email: user.email,
-        privilege_id: user.privilege_id,
-      },
-      config.jwt.secret,
-      { expiresIn: config.jwt.expiration }
-    );
+    if (email && email !== user.email) {
+      // Check if email is already taken
+      const existingEmail = await User.findOne({ where: { email } });
+      if (existingEmail && existingEmail.id !== parseInt(id)) {
+        return res.status(400).json({ error: "Email already taken" });
+      }
+      updateData.email = email;
+    }
 
-    res.json({ token });
+    if (birthday && birthday !== user.birthday) {
+      // Validate birthday format and logic
+      const birthDate = new Date(birthday);
+      const now = new Date();
+      if (birthDate > now) {
+        return res
+          .status(400)
+          .json({ error: "Birthday cannot be in the future" });
+      }
+      updateData.birthday = birthday;
+    }
+
+    // Only admins can update privilege_id
+    if (privilege_id && req.user.privilege_id === "admin") {
+      const privilege = await Privilege.findByPk(privilege_id);
+      if (!privilege) {
+        return res.status(400).json({ error: "Invalid privilege" });
+      }
+      updateData.privilege_id = privilege_id;
+    }
+
+    // Handle password update if provided
+    if (password) {
+      updateData.password = await bcrypt.hash(password, 10);
+    }
+
+    // Update user
+    await user.update(updateData);
+
+    // Clear user cache
+    await redisClient.del("all_users");
+    await redisClient.del(`user_${id}`);
+
+    // Return updated user without password
+    const updatedUser = await User.findByPk(id, {
+      attributes: { exclude: ["password"] },
+      include: [
+        {
+          model: Privilege,
+          as: "privilege",
+          attributes: ["name"],
+        },
+      ],
+    });
+
+    res.json(updatedUser);
   } catch (error) {
-    res.status(500).json({ error: "Error during login" });
+    console.error("Error updating user:", error);
+    res.status(500).json({
+      error: "Error updating user",
+      details:
+        process.env.NODE_ENV === "development" ? error.message : undefined,
+    });
   }
 };
