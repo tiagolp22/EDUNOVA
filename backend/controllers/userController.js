@@ -16,26 +16,16 @@ const config = require("../config/config");
  */
 exports.getAllUsers = async (req, res) => {
   try {
-    // Check if user exists in request
     if (!req.user) {
       console.log("No authenticated user in request");
       return res.status(401).json({ error: "No authenticated user" });
     }
 
-    // Check admin privileges
     const userPrivilege = await Privilege.findByPk(req.user.privilege_id);
-
     if (!userPrivilege || userPrivilege.name !== "admin") {
       return res.status(403).json({ error: "Only admins can view users" });
     }
 
-    // First try to get from cache
-    const cachedUsers = await redisClient.get("all_users");
-    if (cachedUsers) {
-      return res.json(JSON.parse(cachedUsers));
-    }
-
-    // Fetch all users with their privileges if not in cache
     const users = await User.findAll({
       attributes: [
         "id",
@@ -55,24 +45,33 @@ exports.getAllUsers = async (req, res) => {
       ],
     });
 
-    // Format user data for response
-    const formattedUsers = users.map((user) => ({
-      id: user.id,
-      username: user.username,
-      email: user.email,
-      birthday: user.birthday,
-      privilege: user.privilege?.name || "no privilege",
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-    }));
+    // Exibe dados de cada usuário diretamente da consulta do banco de dados
+    console.log("\n--- Dados brutos do banco de dados ---");
+    users.forEach((user, index) => {
+      console.log(`Usuário ${index + 1}:`, user.dataValues);
+    });
 
-    // Cache for 5 minutes
-    await redisClient.set(
-      "all_users",
-      JSON.stringify(formattedUsers),
-      "EX",
-      300
-    );
+    // Mapeia e exibe os dados após a conversão para JSON
+    const formattedUsers = users.map((user, index) => {
+      const userData = user.toJSON();
+      console.log(`\nUsuário ${index + 1} após toJSON:`, userData);
+      return {
+        id: userData.id,
+        username: userData.username,
+        email: userData.email,
+        birthday: userData.birthday,
+        privilege: userData.privilege?.name || "no privilege",
+        createdAt: userData.createdAt
+          ? new Date(userData.createdAt).toISOString()
+          : null,
+        updatedAt: userData.updatedAt
+          ? new Date(userData.updatedAt).toISOString()
+          : null,
+      };
+    });
+
+    console.log("\n--- Dados formatados enviados ao frontend ---");
+    console.log(formattedUsers);
 
     return res.json(formattedUsers);
   } catch (error) {

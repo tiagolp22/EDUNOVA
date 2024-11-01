@@ -63,6 +63,8 @@ export default function UserIndex({ t }) {
       }
 
       const data = await response.json();
+      console.log("data: ", data);
+
       setUsers(data);
       setError(null);
     } catch (err) {
