@@ -38,6 +38,8 @@ router.get("/all", async (req, res) => {
       name: user.username || user.name,
       email: user.email,
       privilege: user.privilege ? user.privilege.name : null,
+      birthday: user.birthday,
+      createdAt: user.createdAt,
     }));
 
     res.json(formattedUsers);
