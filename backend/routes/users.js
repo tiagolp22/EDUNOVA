@@ -93,4 +93,8 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
+// Update users
+router.get("/:id", userController.getUserById);
+router.put("/:id", userController.updateUser);
+
 module.exports = router;

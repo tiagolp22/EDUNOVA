@@ -86,6 +86,70 @@ exports.getAllUsers = async (req, res) => {
 };
 
 /**
+ * Get user by ID
+ * Only admins can view any user's details. Regular users can only view their own details.
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+exports.getUserById = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Check if authenticated user has permission to view this user
+    if (req.user.privilege_id !== "admin" && req.user.id !== parseInt(id)) {
+      return res.status(403).json({
+        error: "Unauthorized to view this user's details",
+      });
+    }
+
+    // Try to get from cache first
+    const cachedUser = await redisClient.get(`user_${id}`);
+    if (cachedUser) {
+      return res.json(JSON.parse(cachedUser));
+    }
+
+    // If not in cache, get from database
+    const user = await User.findByPk(id, {
+      attributes: { exclude: ["password"] }, // Never send password
+      include: [
+        {
+          model: Privilege,
+          as: "privilege",
+          attributes: ["name"],
+        },
+      ],
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Format user data
+    const userData = {
+      id: user.id,
+      username: user.username || user.name,
+      email: user.email,
+      birthday: user.birthday,
+      privilege: user.privilege ? user.privilege.name : null,
+      created_at: user.created_at,
+      updated_at: user.updated_at,
+    };
+
+    // Cache the user data
+    await redisClient.set(`user_${id}`, JSON.stringify(userData), "EX", 3600); // Cache for 1 hour
+
+    res.json(userData);
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    res.status(500).json({
+      error: "Error fetching user details",
+      details:
+        process.env.NODE_ENV === "development" ? error.message : undefined,
+    });
+  }
+};
+
+/**
  * Update user information
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
