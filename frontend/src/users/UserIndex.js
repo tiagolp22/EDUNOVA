@@ -169,11 +169,11 @@ export default function UserIndex({ t }) {
         <h2 className="mb-[2rem] p-3">{t("user_list_titre")}</h2>
 
         <div className="overflow-x-auto">
-          <table className="w-full divide-y divide-gray-200 bg-[#21283B] mt-4 rounded-lg mb-[4rem]">
+          <table className="w-full divide-y divide-gray-200 bg-[--azul-escuro] mt-4 rounded-lg mb-[4rem]">
             <thead>
               <tr>
                 <th
-                  className="px-6 py-3 text-left text-xs font-large text-gray-500 uppercase tracking-wider cursor-pointer"
+                  className="px-6 py-3 text-xs font-large text-center text-gray-500 uppercase tracking-wider cursor-pointer"
                   onClick={() => handleSort("name")}
                 >
                   <span
@@ -187,21 +187,21 @@ export default function UserIndex({ t }) {
                       : "⇅"}
                   </span>
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-large text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-xs font-large text-gray-500 uppercase tracking-wider">
                   {t("user.courriel")}
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-large text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-xs font-large text-gray-500 uppercase tracking-wider">
                   {t("user.birthday")}
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-large text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-xs font-large text-gray-500 uppercase tracking-wider">
                   {t("user.privilege")}
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-large text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-xs font-large text-gray-500 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-[#21283B] divide-y divide-gray-200">
+            <tbody className="bg-[--azul-escuro] divide-y divide-gray-200">
               {sortedUsers.map((user) => (
                 <tr key={user.id}>
                   <td className="px-4 py-2 whitespace-nowrap text-white">

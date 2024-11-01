@@ -185,3 +185,45 @@ exports.updateUser = async (req, res) => {
     });
   }
 };
+
+/**
+ * Delete user
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+exports.deleteUser = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Check if user is admin
+    if (!req.user.privilege || req.user.privilege.name !== "admin") {
+      return res.status(403).json({ error: "Admin privileges required" });
+    }
+
+    // Find user
+    const user = await User.findByPk(id);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Prevent admin from deleting themselves
+    if (user.id === req.user.id) {
+      return res.status(400).json({ error: "Cannot delete your own account" });
+    }
+
+    // Delete user
+    await user.destroy();
+
+    // Clear cache
+    await redisClient.del("all_users");
+
+    res.json({ message: "User deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    res.status(500).json({
+      error: "Error deleting user",
+      details:
+        process.env.NODE_ENV === "development" ? error.message : undefined,
+    });
+  }
+};
