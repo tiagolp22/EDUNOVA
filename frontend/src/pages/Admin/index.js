@@ -1,4 +1,5 @@
-import MenuAdmin from "components/MenuAdmin";
+import MenuAdmin from "components/dash_admin/MenuAdmin";
+import { Outlet } from "react-router-dom";
 import UserIndex from "users/UserIndex";
 
 export default function Admin({ t, language }) {
@@ -157,9 +158,7 @@ export default function Admin({ t, language }) {
 
               <div className="mt-8"></div>
 
-              <div className="flex flex-col mt-8">
-                <UserIndex t={t} language={language} />
-              </div>
+              <Outlet />
             </div>
           </main>
         </div>

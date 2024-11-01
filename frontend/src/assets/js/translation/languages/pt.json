@@ -90,7 +90,11 @@
              "user.privilege": "Privilégio",
              "user.actions": "Ações",
 
-             "dash_createCourse": "Criar um curso"
+             "dash_courses": "Cursos",
+             "dash_allCourses": "Todos os cursos",
+             "dash_createCategory": "Criar uma categoria",
+             "dash_createCourse": "Criar um curso",
+             "dash_users": "Todos os usuários"
              
 
 

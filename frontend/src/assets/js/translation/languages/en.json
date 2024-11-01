@@ -87,7 +87,11 @@
           "user.privilege": "Privilege",
           "user.actions": "Actions",
 
-          "dash_createCourse": "Create a course"
+          "dash_courses": "Courses",
+          "dash_allCourses": "All courses",
+          "dash_createCategory": "Create a category",
+          "dash_createCourse": "Criar um curso",
+          "dash_users": "All users"
 
     } 
 }
