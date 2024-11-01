@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const authController = require("../controllers/authController");
 const { body } = require("express-validator");
+const authenticateToken = require("../middleware/auth");
 
 // Test route to verify API is running
 router.get("/", (req, res) => {
@@ -89,5 +90,20 @@ router.post(
   ],
   authController.login
 );
+
+// User logout endpoint - requires authentication
+router.post("/logout", authenticateToken, authController.logout);
+
+// Optional: Check session status endpoint
+router.get("/check-session", authenticateToken, (req, res) => {
+  res.json({
+    isValid: true,
+    user: {
+      id: req.user.id,
+      email: req.user.email,
+      privilege_id: req.user.privilege_id,
+    },
+  });
+});
 
 module.exports = router;

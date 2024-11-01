@@ -12,6 +12,8 @@
         "btn_back": " Voltar",
         "btn_edit": "Editar",
         "btn_update": "Update",
+        "btn_save": "Salvar",
+        "btn_cancel": "Cancelar",
       
 
         "nav_contact" : "Contato",
@@ -78,7 +80,17 @@
              "iconsSection_time" : "Mais Eficiente",
              "iconsSection_value" : "Melhor custo benefício",
              "iconsSection_expertise" : "Desenvolvido por especialistas",
-             "iconsSection_friendly" : "Fácil de usar"
+             "iconsSection_friendly" : "Fácil de usar",
+
+             "dash_greeting": "Olá",
+             "user_list_titre": "Todos os usuários",
+             "user.username" : "Nome",
+             "user.email" : "Email",
+             "user.birthday": "Aniversário",
+             "user.privilege": "Privilégio",
+             "user.actions": "Ações",
+
+             "dash_createCourse": "Criar um curso"
              
 
 
