@@ -15,6 +15,15 @@ export default function UserIndex({ t }) {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
 
   /**
+   * Formats date to local string
+   * @param {string} date - Date to format
+   */
+  const formatDate = (date) => {
+    if (!date) return "Not set";
+    return new Date(date).toLocaleDateString();
+  };
+
+  /**
    * Fetches users from the API
    * Requires authentication token and admin privileges
    */
@@ -58,6 +67,42 @@ export default function UserIndex({ t }) {
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  /**
+   * Handles user deletion
+   * @param {number} userId - ID of user to delete
+   */
+  const handleDelete = async (userId) => {
+    if (!window.confirm(t("user.delete_confirm"))) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(
+        `http://localhost:5000/api/users/${userId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.error || `HTTP error! status: ${response.status}`
+        );
+      }
+
+      // Refresh users list after successful deletion
+      await fetchUsers();
+    } catch (err) {
+      console.error("Error deleting user:", err);
+      setError(err.message);
     }
   };
 
@@ -146,6 +191,9 @@ export default function UserIndex({ t }) {
                   {t("user.courriel")}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-large text-gray-500 uppercase tracking-wider">
+                  {t("user.birthday")}
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-large text-gray-500 uppercase tracking-wider">
                   {t("user.privilege")}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-large text-gray-500 uppercase tracking-wider">
@@ -163,6 +211,9 @@ export default function UserIndex({ t }) {
                     {user.email}
                   </td>
                   <td className="px-4 py-2 whitespace-nowrap text-white">
+                    {formatDate(user.birthday)}
+                  </td>
+                  <td className="px-4 py-2 whitespace-nowrap text-white">
                     <span
                       className={`px-2 py-1 rounded-full text-xs ${
                         user.privilege === "admin"
@@ -173,10 +224,16 @@ export default function UserIndex({ t }) {
                       {user.privilege}
                     </span>
                   </td>
-                  <td className="px-4 py-2 whitespace-nowrap">
+                  <td className="px-4 py-2 whitespace-nowrap flex gap-2">
                     <Link to={`/user/${user.id}`}>
                       <Button>{t("btn_edit")}</Button>
                     </Link>
+                    <Button
+                      onClick={() => handleDelete(user.id)}
+                      className="bg-red-600 hover:bg-red-700"
+                    >
+                      {t("btn_delete")}
+                    </Button>
                   </td>
                 </tr>
               ))}
