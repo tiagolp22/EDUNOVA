@@ -25,7 +25,6 @@ export default function Box1({ t, language }) {
         }
 
         const usersData = await response.json();
-        console.log("Response from API:", usersData);
 
         // Filtra usuários com base na data de criação
         const startDate = getStartDate(period);
@@ -55,9 +54,7 @@ export default function Box1({ t, language }) {
             viewBox="0 0 28 30"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
-          >
-            {/* SVG paths aqui */}
-          </svg>
+          ></svg>
         </div>
 
         <div className="mx-5">

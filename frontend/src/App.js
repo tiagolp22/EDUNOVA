@@ -12,6 +12,7 @@ import Signin from "pages/Signin";
 import Admin from "pages/Admin";
 import CoursesIndex from "pages/Courses/CoursesIndex";
 import UserIndex from "users/UserIndex";
+import CourseCreate from "pages/Courses/CourseCreate";
 
 function App() {
   // Translation
@@ -60,6 +61,7 @@ function App() {
             element={<UserIndex t={t} language={language} />}
           />
           <Route path="courses/all" element={<CoursesIndex />} />
+          <Route path="courses/create" element={<CourseCreate t={t} language={language}s/>} />
         </Route>
       </Routes>
     </BrowserRouter>

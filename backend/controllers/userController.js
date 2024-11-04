@@ -84,7 +84,7 @@ exports.updateUser = async (req, res) => {
 
   try {
     // Check if the requesting user is an admin or the user themselves
-    if (req.user.privilege_id !== "admin" && req.user.id !== parseInt(id)) {
+    if (req.user.privilege?.name !== "admin" && req.user.id !== parseInt(id)) {
       return res
         .status(403)
         .json({ error: "Unauthorized to update this user" });
@@ -131,7 +131,7 @@ exports.updateUser = async (req, res) => {
     }
 
     // Only admins can update privilege_id
-    if (privilege_id && req.user.privilege_id === "admin") {
+    if (privilege_id && req.user.privilege?.name === "admin") {
       const privilege = await Privilege.findByPk(privilege_id);
       if (!privilege) {
         return res.status(400).json({ error: "Invalid privilege" });
