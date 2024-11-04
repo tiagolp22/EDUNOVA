@@ -14,7 +14,16 @@
         "btn_update": "Update",
         "btn_save": "Salvar",
         "btn_cancel": "Cancelar",
-      
+
+        "course_create_page_title": "Adicione um novo curso",
+        "course_title_en":"Título (inglês)",
+        "course_title_pt":"Título (português)",
+        "course_subtitle_en": "Subtítulo (inglês)",
+        "course_subtitle_pt": "Subtítulo (português)",
+        "course_description_en": "Descrição (inglês)",
+        "course_description_pt": "Descrição (Português)",
+        "course_price": "Preço",
+        "course_teacher": "Professor/Professora",
 
         "nav_contact" : "Contato",
         "nav_services" : "Serviços",
@@ -96,6 +105,7 @@
              "dash_createCourse": "Criar um curso",
              "dash_users": "Todos os usuários"
              
+
 
 
           

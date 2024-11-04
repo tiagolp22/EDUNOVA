@@ -1,12 +1,7 @@
 import Button from "components/Button/Button";
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import cake from "assets/imgs/birthday-cake-svgrepo-com.svg";
 
-/**
- * UserIndex component - Displays a list of all users (admin only)
- * @param {Object} props - Component props
- * @param {Function} props.t - Translation function
- */
 export default function UserIndex({ t }) {
   // State management
   const [users, setUsers] = useState([]);
@@ -15,37 +10,41 @@ export default function UserIndex({ t }) {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
   const [editingId, setEditingId] = useState(null);
   const [editFormData, setEditFormData] = useState({
-    name: "",
     email: "",
     birthday: "",
     privilege: "",
   });
+  const [currentUser, setCurrentUser] = useState(null);
 
-  // Format date helpers
+  // Helper functions
   const formatDate = (date) => {
     if (!date) return "Not set";
-    return new Date(date).toLocaleDateString();
+    const [year, month, day] = date.split("-");
+    return `${day}/${month}/${year}`;
   };
 
   const formatDateForInput = (date) => {
     if (!date) return "";
-    return new Date(date).toISOString().split("T")[0];
+    return date;
   };
 
-  // API calls
+  // Fetch current user and users list on mount
+  useEffect(() => {
+    const userStr = localStorage.getItem("user");
+    if (userStr) {
+      const userData = JSON.parse(userStr);
+      setCurrentUser(userData);
+    }
+    fetchUsers();
+  }, []);
+
   const fetchUsers = async () => {
     try {
       setLoading(true);
       const token = localStorage.getItem("token");
-      const userStr = localStorage.getItem("user");
 
-      if (!token || !userStr) {
+      if (!token) {
         throw new Error("Authentication required");
-      }
-
-      const user = JSON.parse(userStr);
-      if (!user.privilege || user.privilege.name !== "admin") {
-        throw new Error("Admin privileges required");
       }
 
       const response = await fetch("http://localhost:5000/api/users/all", {
@@ -63,8 +62,6 @@ export default function UserIndex({ t }) {
       }
 
       const data = await response.json();
-      console.log("data: ", data);
-
       setUsers(data);
       setError(null);
     } catch (err) {
@@ -72,6 +69,82 @@ export default function UserIndex({ t }) {
       setError(err.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleUpdate = async (userId) => {
+    try {
+      const token = localStorage.getItem("token");
+      const userStr = localStorage.getItem("user");
+
+      if (!token || !userStr) {
+        throw new Error("Authentication required");
+      }
+
+      // Validations
+      if (!editFormData.email?.trim()) {
+        throw new Error("Email is required");
+      }
+      if (!/\S+@\S+\.\S+/.test(editFormData.email)) {
+        throw new Error("Invalid email format");
+      }
+
+      // Prepare update payload
+      const updatePayload = {
+        email: editFormData.email,
+        birthday: editFormData.birthday || null,
+      };
+
+      // Se é admin, incluir privilege_id
+      if (currentUser.privilege?.name === "admin" && editFormData.privilege) {
+        const privilegeMap = {
+          admin: 1,
+          teacher: 2,
+          subscriber: 3,
+        };
+
+        updatePayload.privilege_id = privilegeMap[editFormData.privilege];
+      }
+
+      const response = await fetch(
+        `http://localhost:5000/api/users/${userId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(updatePayload),
+        }
+      );
+
+      const responseText = await response.text();
+      let responseData;
+
+      try {
+        responseData = JSON.parse(responseText);
+      } catch (e) {
+        console.log("Could not parse response as JSON:", responseText);
+        throw new Error("Invalid response from server");
+      }
+
+      if (!response.ok) {
+        throw new Error(
+          responseData.error || `HTTP error! status: ${response.status}`
+        );
+      }
+
+      await fetchUsers();
+      setEditingId(null);
+      setEditFormData({
+        email: "",
+        birthday: "",
+        privilege: "",
+      });
+      setError(null);
+    } catch (err) {
+      console.error("Error updating user:", err);
+      setError(err.message);
     }
   };
 
@@ -104,112 +177,21 @@ export default function UserIndex({ t }) {
     }
   };
 
-  const handleUpdate = async (userId) => {
-    try {
-      // Pegar o token e informações do usuário do localStorage
-      const token = localStorage.getItem("token");
-      const userStr = localStorage.getItem("user");
-
-      if (!token || !userStr) {
-        throw new Error("Authentication required");
-      }
-
-      const currentUser = JSON.parse(userStr);
-
-      // Verificar se o usuário tem permissão
-      if (
-        currentUser.privilege?.name !== "admin" &&
-        currentUser.id !== userId
-      ) {
-        throw new Error("Unauthorized to update this user");
-      }
-
-      const response = await fetch(
-        `http://localhost:5000/api/users/${userId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            name: editFormData.name,
-            email: editFormData.email,
-            birthday: editFormData.birthday || null,
-            privilege_id: editFormData.privilege,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(
-          errorData.error || `HTTP error! status: ${response.status}`
-        );
-      }
-
-      const updatedUser = await response.json();
-
-      // Atualizar a lista de usuários
-      setUsers(users.map((user) => (user.id === userId ? updatedUser : user)));
-
-      // Limpar o modo de edição
-      setEditingId(null);
-      setEditFormData({
-        name: "",
-        email: "",
-        birthday: "",
-        privilege: "",
-      });
-    } catch (err) {
-      console.error("Error updating user:", err);
-      setError(err.message);
-    }
-  };
-
-  // Função auxiliar para validar os dados antes de enviar
-  const validateUpdateData = (data) => {
-    const errors = [];
-
-    if (!data.name?.trim()) {
-      errors.push("Name is required");
-    }
-
-    if (!data.email?.trim()) {
-      errors.push("Email is required");
-    } else if (!/\S+@\S+\.\S+/.test(data.email)) {
-      errors.push("Invalid email format");
-    }
-
-    // Validação opcional para data de nascimento
-    if (data.birthday && !isValidDate(data.birthday)) {
-      errors.push("Invalid date format");
-    }
-
-    return errors;
-  };
-
-  // Função auxiliar para validar data
-  const isValidDate = (dateString) => {
-    const date = new Date(dateString);
-    return date instanceof Date && !isNaN(date);
-  };
-
-  // Event handlers
   const handleEditClick = (user) => {
     setEditingId(user.id);
     setEditFormData({
-      name: user.name,
-      email: user.email,
+      email: user.email || "",
       birthday: user.birthday || "",
-      privilege: user.privilege,
+      privilege:
+        typeof user.privilege === "string"
+          ? user.privilege
+          : user.privilege?.name || "",
     });
   };
 
   const handleCancelEdit = () => {
     setEditingId(null);
     setEditFormData({
-      name: "",
       email: "",
       birthday: "",
       privilege: "",
@@ -224,10 +206,6 @@ export default function UserIndex({ t }) {
     }));
   };
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
   const handleSort = (key) => {
     let direction = "asc";
     if (sortConfig.key === key && sortConfig.direction === "asc") {
@@ -240,6 +218,17 @@ export default function UserIndex({ t }) {
     if (!users.length) return [];
     return [...users].sort((a, b) => {
       if (!sortConfig.key) return 0;
+
+      // Tratamento especial para username/name
+      if (sortConfig.key === "username") {
+        const aName = (a.username || a.name || "").toLowerCase();
+        const bName = (b.username || b.name || "").toLowerCase();
+        return sortConfig.direction === "asc"
+          ? aName.localeCompare(bName)
+          : bName.localeCompare(aName);
+      }
+
+      // Para outros campos
       const aValue = a[sortConfig.key]?.toString().toLowerCase() || "";
       const bValue = b[sortConfig.key]?.toString().toLowerCase() || "";
       return sortConfig.direction === "asc"
@@ -247,7 +236,6 @@ export default function UserIndex({ t }) {
         : bValue.localeCompare(aValue);
     });
   }, [users, sortConfig]);
-
   if (loading) {
     return (
       <div className="flex justify-center items-center p-4">
@@ -256,36 +244,42 @@ export default function UserIndex({ t }) {
     );
   }
 
-  if (error) {
+  const isBirthday = (birthday) => {
+    if (!birthday) return false;
+    const today = new Date();
+    const birthDate = new Date(birthday);
     return (
-      <div
-        className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 m-4"
-        role="alert"
-      >
-        <p className="font-bold">Error</p>
-        <p>{error}</p>
-      </div>
+      today.getDate() === birthDate.getDate() &&
+      today.getMonth() === birthDate.getMonth()
     );
-  }
+  };
 
   return (
     <div className="flex flex-wrap">
       <div className="w-full px-3 sm:w-[80%] sm:mx-0 mb-16 sm:mb-24">
         <h2 className="mb-[2rem] p-3">{t("user_list_titre")}</h2>
-
+        {error && (
+          <div
+            className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4"
+            role="alert"
+          >
+            <p className="font-bold">Error</p>
+            <p>{error}</p>
+          </div>
+        )}
         <div className="overflow-x-auto">
-          <table className="w-full divide-y  text-center divide-gray-200 bg-[--azul-escuro] mt-4 rounded-lg mb-[4rem]">
+          <table className="w-full divide-y text-center divide-gray-200 bg-[--azul-escuro] mt-4 rounded-lg mb-[4rem]">
             <thead>
               <tr>
                 <th
-                  onClick={() => handleSort("name")}
+                  onClick={() => handleSort("username")}
                   className="px-6 py-3 text-xs font-large text-center text-gray-500 uppercase tracking-wider cursor-pointer"
                 >
                   <span
-                    className={sortConfig.key === "name" ? "font-bold" : ""}
+                    className={sortConfig.key === "username" ? "font-bold" : ""}
                   >
                     {t("user.username")}{" "}
-                    {sortConfig.key === "name"
+                    {sortConfig.key === "username"
                       ? sortConfig.direction === "asc"
                         ? "▲"
                         : "▼"
@@ -310,17 +304,7 @@ export default function UserIndex({ t }) {
               {sortedUsers.map((user) => (
                 <tr key={user.id}>
                   <td className="px-4 py-2 whitespace-nowrap text-white">
-                    {editingId === user.id ? (
-                      <input
-                        type="text"
-                        name="name"
-                        value={editFormData.name}
-                        onChange={handleInputChange}
-                        className="w-full px-2 py-1 text-black rounded"
-                      />
-                    ) : (
-                      user.name
-                    )}
+                    {user.username || user.name}
                   </td>
                   <td className="px-4 py-2 whitespace-nowrap text-white">
                     {editingId === user.id ? (
@@ -345,11 +329,17 @@ export default function UserIndex({ t }) {
                         className="w-full px-2 py-1 text-black rounded"
                       />
                     ) : (
-                      formatDate(user.birthday)
+                      <div className="flex items-center justify-center gap-2">
+                        {formatDate(user.birthday)}
+                        {isBirthday(user.birthday) && (
+                          <img src={cake} alt="Birthday" className="w-5 h-5" />
+                        )}
+                      </div>
                     )}
                   </td>
                   <td className="px-4 py-2 whitespace-nowrap text-white">
-                    {editingId === user.id ? (
+                    {editingId === user.id &&
+                    currentUser?.privilege?.name === "admin" ? (
                       <select
                         name="privilege"
                         value={editFormData.privilege}
@@ -357,18 +347,22 @@ export default function UserIndex({ t }) {
                         className="w-full px-2 py-1 text-black rounded"
                       >
                         <option value="admin">Admin</option>
-                        <option value="user">User</option>
                         <option value="teacher">Teacher</option>
+                        <option value="subscriber">Subscriber</option>
                       </select>
                     ) : (
                       <span
                         className={`px-2 py-1 rounded-full text-xs ${
-                          user.privilege === "admin"
+                          (typeof user.privilege === "string"
+                            ? user.privilege
+                            : user.privilege?.name) === "admin"
                             ? "bg-purple-200 text-purple-800"
                             : "bg-green-200 text-green-800"
                         }`}
                       >
-                        {user.privilege}
+                        {typeof user.privilege === "string"
+                          ? user.privilege
+                          : user.privilege?.name}
                       </span>
                     )}
                   </td>

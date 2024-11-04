@@ -1,7 +1,7 @@
 import Box1 from "components/dash_admin/Box1";
 import Box2 from "components/dash_admin/Box2";
 import MenuAdmin from "components/dash_admin/MenuAdmin";
-import Box3 from "components/dash_admin/MenuAdmin/Box3";
+import Box3 from "components/dash_admin/Box3";
 import { Outlet } from "react-router-dom";
 import UserIndex from "users/UserIndex";
 
