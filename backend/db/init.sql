@@ -1,9 +1,18 @@
 BEGIN;
 
+-- Drop existing tables if they exist
+DROP TABLE IF EXISTS payments, progress, enrollments, media_files, classes, courses, status, privileges, users, categories CASCADE;
+
 -- Table: privileges (user roles and permissions)
 CREATE TABLE IF NOT EXISTS public.privileges (
     id SERIAL PRIMARY KEY,
     name TEXT NOT NULL
+);
+
+-- Table: categories (categories for organizing courses)
+CREATE TABLE IF NOT EXISTS public.categories (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE
 );
 
 -- Table: users (students, instructors, and admins)
@@ -14,7 +23,7 @@ CREATE TABLE IF NOT EXISTS public.users (
     password TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW(),
-    birthday DATE,  -- Adiciona a coluna para armazenar data de aniversário
+    birthday DATE,
     privilege_id INTEGER REFERENCES public.privileges(id) ON DELETE NO ACTION
 );
 
@@ -33,7 +42,8 @@ CREATE TABLE IF NOT EXISTS public.courses (
     price NUMERIC(10, 2) NOT NULL CHECK (price >= 0),
     created_at TIMESTAMP DEFAULT NOW(),
     status_id INTEGER NOT NULL REFERENCES public.status(id),
-    teacher_id INTEGER REFERENCES public.users(id) ON DELETE SET NULL
+    teacher_id INTEGER REFERENCES public.users(id) ON DELETE SET NULL,
+    category_id INTEGER REFERENCES public.categories(id) ON DELETE SET NULL
 );
 
 -- Table: classes (individual lessons within courses)
@@ -86,6 +96,20 @@ CREATE TABLE IF NOT EXISTS public.payments (
     payment_gateway_response JSON,
     payment_date TIMESTAMP DEFAULT NOW()
 );
+
+-- Insert initial data into the privileges table
+INSERT INTO public.privileges (id, name) VALUES
+    (1, 'admin'),
+    (2, 'teacher'),
+    (3, 'student')
+ON CONFLICT (id) DO NOTHING;
+
+-- Insert initial data into the users table with hashed passwords
+INSERT INTO public.users (name, email, password, privilege_id, created_at, updated_at)
+VALUES
+    ('Admin User', 'admin@example.com', '$2a$10$WzJJhbChZ9PE.v9KJHG3RuV/p.zDSNnPxUp3M9u9i0imwLtDh5lS6', 1, NOW(), NOW()), -- password: admin123
+    ('Teacher User', 'teacher@example.com', '$2a$10$Tx3zKfi1Eg4TuwnY.kHveOLFs2A8Cq/oDyD1nI1wrVDWXlmBzXt0W', 2, NOW(), NOW()), -- password: teacher123
+    ('Student User', 'student@example.com', '$2a$10$y8kO/vPEvhIfG/5FlOYeZOf.wH/y2UpDBB4TYyP9VeXe7qxGbX5W.', 3, NOW(), NOW()); -- password: student123
 
 -- Indexing for better performance (indexes on frequently queried fields)
 CREATE INDEX idx_user_email ON public.users(email);
