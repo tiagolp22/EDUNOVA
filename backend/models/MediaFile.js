@@ -1,5 +1,3 @@
-// models/MediaFile.js
-
 /**
  * MediaFile Model Definition
  * 

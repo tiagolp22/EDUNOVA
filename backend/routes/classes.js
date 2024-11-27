@@ -1,40 +1,23 @@
-// routes/classes.js
-const express = require('express');
-const router = express.Router();
-const classController = require('../controllers/classController');
-const authenticateToken = require('../middleware/auth');
-const { body, param } = require('express-validator');
+const router = require('express').Router();
+const ClassController = require('../controllers/ClassController');
+const auth = require('../middleware/auth');
+const authorize = require('../middleware/authorize');
+const { validateClass } = require('../validators/classValidator');
 
-// All routes below require authentication
-router.use(authenticateToken);
+router.use(auth);
 
-// Create a new class
-router.post('/', [
-    body('title').notEmpty().withMessage('Title is required'),
-    body('subtitle').notEmpty().withMessage('Subtitle is required'),
-    body('description').notEmpty().withMessage('Description is required'),
-    body('course_id').isInt().withMessage('Course ID must be an integer'),
-    body('video_path').optional().isString().withMessage('Video path must be a string')
-], classController.createClass);
-
-// Get all classes
-router.get('/', classController.getAllClasses);
-
-// Get a class by ID
-router.get('/:id', [
-    param('id').isInt().withMessage('Class ID must be an integer')
-], classController.getClassById);
-
-// Update a class
-router.put('/:id', [
-    param('id').isInt().withMessage('Class ID must be an integer'),
-    body('course_id').optional().isInt().withMessage('Course ID must be an integer'),
-    body('video_path').optional().isString().withMessage('Video path must be a string')
-], classController.updateClass);
-
-// Delete a class
-router.delete('/:id', [
-    param('id').isInt().withMessage('Class ID must be an integer')
-], classController.deleteClass);
+router.get('/', ClassController.getAllClasses);
+router.get('/:id', ClassController.getClassById);
+router.post('/', 
+  authorize(['admin', 'teacher']),
+  validateClass,
+  ClassController.createClass
+);
+router.put('/:id', 
+  authorize(['admin', 'teacher']),
+  validateClass,
+  ClassController.updateClass
+);
+router.delete('/:id', authorize(['admin']), ClassController.deleteClass);
 
 module.exports = router;
