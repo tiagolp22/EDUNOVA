@@ -9,65 +9,26 @@ const env = process.env.NODE_ENV || "development";
 // Load environment variables from the corresponding .env file
 dotenv.config({ path: path.resolve(process.cwd(), `.env.${env}`) });
 
-// Configuração principal mantendo sua estrutura original
+// Main configuration object
 const config = {
-  /**
-   * Database Configuration
-   * These settings are used to establish a connection with the PostgreSQL database.
-   */
   db: {
     host: process.env.DB_HOST || "localhost",
     port: process.env.DB_PORT || 5432,
-    database: process.env.DB_NAME || "mydatabase",
+    database: process.env.DB_NAME || "edunova",
     user: process.env.DB_USER || "postgres",
     password: process.env.DB_PASSWORD || "2213Tb",
   },
-
-  /**
-   * Server Configuration
-   * These settings determine how the server runs.
-   */
   server: {
     port: process.env.PORT || 5000,
   },
-
-  /**
-   * JWT Configuration
-   * These settings are used for handling JSON Web Tokens (JWT) for authentication.
-   */
   jwt: {
     secret: process.env.JWT_SECRET || "your_jwt_secret",
     expiration: process.env.JWT_EXPIRATION || "36000",
   },
-
-  /**
-   * Node Environment
-   * Specifies the environment in which the application is running.
-   * Can be 'development', 'test', 'production', etc.
-   */
-  nodeEnv: env,
-
-  /**
-   * Redis Configuration
-   * Settings for Redis cache, used across the application to cache frequently accessed data.
-   */
   redis: {
     host: process.env.REDIS_HOST || "localhost",
     port: process.env.REDIS_PORT || 6379,
     password: process.env.REDIS_PASSWORD || null,
-  },
-
-  /**
-   * Database Configuration for Sequelize
-   * This format is expected by Sequelize
-   */
-  database: {
-    name: process.env.DB_NAME || "mydatabase",
-    username: process.env.DB_USER || "postgres",
-    password: process.env.DB_PASSWORD || "2213Tb",
-    host: process.env.DB_HOST || "localhost",
-    port: process.env.DB_PORT || 5432,
-    dialect: "postgres",
   },
 };
 

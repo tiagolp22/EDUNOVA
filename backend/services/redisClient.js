@@ -1,19 +1,17 @@
-const redis = require("redis");
+const Redis = require('ioredis');
 
-const redisClient = redis.createClient({
-  url: `redis://${process.env.REDIS_HOST || "localhost"}:${
-    process.env.REDIS_PORT || 6379
-  }`,
-  password: process.env.REDIS_PASSWORD || undefined,
+const redisClient = new Redis({
+  host: process.env.REDIS_HOST || 'redis',
+  port: process.env.REDIS_PORT || 6379,
+  maxRetriesPerRequest: 3,
 });
 
-redisClient
-  .connect()
-  .then(() => {
-    console.log("Connected to Redis");
-  })
-  .catch((err) => {
-    console.error("Redis connection error:", err);
-  });
+redisClient.on('error', (error) => {
+  console.error('Redis connection error:', error);
+});
+
+redisClient.on('connect', () => {
+  console.log('✅ Redis connected successfully');
+});
 
 module.exports = redisClient;

@@ -1,31 +1,42 @@
-// services/mediaService.js
+const AWS = require('aws-sdk');
+const { v4: uuidv4 } = require('uuid');
 
-/**
- * Simula o upload de um arquivo de mídia.
- * @param {Object} mediaData - Dados do arquivo de mídia.
- * @returns {Object} - Dados do arquivo de mídia com ID único.
- */
-exports.uploadMedia = async (mediaData) => {
-  // Implemente a lógica de upload (por exemplo, salvando no banco de dados ou em um serviço de armazenamento).
-  return { id: "unique_media_id", ...mediaData }; // Retorno de exemplo
-};
+const s3 = new AWS.S3({
+  accessKeyId: process.env.AWS_ACCESS_KEY,
+  secretAccessKey: process.env.AWS_SECRET_KEY,
+  region: process.env.AWS_REGION
+});
 
-/**
- * Simula a busca de um arquivo de mídia pelo ID.
- * @param {string} id - ID do arquivo de mídia.
- * @returns {Object|null} - Dados do arquivo de mídia ou null se não encontrado.
- */
-exports.getMediaById = async (id) => {
-  // Implemente a lógica para recuperar o arquivo de mídia
-  return { id, name: "example_media_file.jpg" }; // Retorno de exemplo
-};
+class MediaService {
+  async uploadFile(file, folder = 'general') {
+    const fileId = uuidv4();
+    const extension = file.originalname.split('.').pop();
+    const key = `${folder}/${fileId}.${extension}`;
 
-/**
- * Simula a exclusão de um arquivo de mídia pelo ID.
- * @param {string} id - ID do arquivo de mídia.
- * @returns {boolean} - Retorna true se a exclusão for bem-sucedida.
- */
-exports.deleteMedia = async (id) => {
-  // Implemente a lógica para excluir o arquivo de mídia
-  return true; // Retorno de exemplo
-};
+    await s3.putObject({
+      Bucket: process.env.AWS_BUCKET,
+      Key: key,
+      Body: file.buffer,
+      ContentType: file.mimetype
+    }).promise();
+
+    return key;
+  }
+
+  async getSignedUrl(key, expiresIn = 3600) {
+    return s3.getSignedUrlPromise('getObject', {
+      Bucket: process.env.AWS_BUCKET,
+      Key: key,
+      Expires: expiresIn
+    });
+  }
+
+  async deleteFile(key) {
+    await s3.deleteObject({
+      Bucket: process.env.AWS_BUCKET,
+      Key: key
+    }).promise();
+  }
+}
+
+module.exports = new MediaService();

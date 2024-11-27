@@ -1,149 +1,135 @@
-const { Course, Status, User } = require('../config/db').models;
-const Queue = require('bull');
-const courseQueue = new Queue('courseQueue');
-const slugify = require('slugify'); // For SEO-friendly URLs
-const redisClient = require('../services/redisClient'); // Redis for caching
+const BaseController = require('./base/BaseController');
+const { Course, User, Category, Status } = require('../models');
+const redisClient = require('../services/redisClient');
+const { validateCourse } = require('../validators/courseValidator');
+const { sequelize } = require('../config/db');
 
-/**
- * Create a new course - Only accessible by teachers and admins
- */
-exports.createCourse = async (req, res) => {
-    if (req.user.privilege_id !== 'teacher' && req.user.privilege_id !== 'admin') {
-        return res.status(403).json({ error: 'Insufficient privileges' });
-    }
+class CourseController extends BaseController {
+  constructor() {
+    super(Course);
+  }
 
-    const { title, subtitle, description, price, status_id, teacher_id } = req.body;
-
+  async createCourse(req, res) {
+    const transaction = await sequelize.transaction();
     try {
-        // Generate a slug for SEO-friendly URL
-        const slug = slugify(title, { lower: true, strict: true });
+      const validation = validateCourse(req.body);
+      if (!validation.success) {
+        return res.status(400).json({ error: 'Validation error', details: validation.errors });
+      }
 
-        // Add to queue for asynchronous creation
-        courseQueue.add({ title, subtitle, description, price, status_id, teacher_id, slug });
+      const teacher = await User.findByPk(req.body.teacher_id);
+      if (!teacher || !['admin', 'teacher'].includes(teacher.privilege?.name)) {
+        await transaction.rollback();
+        return res.status(400).json({ error: 'Invalid teacher_id or insufficient privileges' });
+      }
 
-        // Clear cache as a new course is added
-        await redisClient.del('all_courses');
-        res.status(202).json({ message: 'Course creation in progress' });
+      const course = await Course.create(req.body, { transaction });
+      
+      await transaction.commit();
+
+      const courseWithDetails = await Course.findByPk(course.id, {
+        include: this.getCourseIncludes()
+      });
+
+      await redisClient.del('courses_list');
+      
+      return res.status(201).json(this.formatResponse(courseWithDetails));
     } catch (error) {
-        res.status(500).json({ error: 'Error queuing course creation' });
+      await transaction.rollback();
+      return this.handleError(error, res);
     }
-};
+  }
 
-// Process asynchronous course creation
-courseQueue.process(async (job) => {
-    const { title, subtitle, description, price, status_id, teacher_id, slug } = job.data;
-    await Course.create({ title, subtitle, description, price, status_id, teacher_id, slug });
-});
-
-/**
- * Retrieve all courses with caching - Accessible by all users
- */
-exports.getAllCourses = async (req, res) => {
-    const cacheKey = 'all_courses';
-
+  async updateCourse(req, res) {
+    const transaction = await sequelize.transaction();
     try {
-        const cachedCourses = await redisClient.get(cacheKey);
-        if (cachedCourses) return res.json(JSON.parse(cachedCourses));
+      const { id } = req.params;
+      const course = await Course.findByPk(id);
+      
+      if (!course) {
+        await transaction.rollback();
+        return res.status(404).json({ error: 'Course not found' });
+      }
 
-        const courses = await Course.findAll({
-            include: [
-                { model: Status, as: 'status' },
-                { model: User, as: 'teacher', attributes: ['id', 'name', 'email'] }
-            ]
-        });
+      if (!req.user.canEditCourse(id)) {
+        await transaction.rollback();
+        return res.status(403).json({ error: 'Insufficient permissions' });
+      }
 
-        await redisClient.set(cacheKey, JSON.stringify(courses), 'EX', 3600); // Cache for 1 hour
-        res.json(courses);
+      const validation = validateCourse(req.body, true);
+      if (!validation.success) {
+        await transaction.rollback();
+        return res.status(400).json({ error: 'Validation error', details: validation.errors });
+      }
+
+      await course.update(req.body, { transaction });
+      await transaction.commit();
+
+      const updatedCourse = await Course.findByPk(id, {
+        include: this.getCourseIncludes()
+      });
+
+      await redisClient.del(`course_${id}`);
+      await redisClient.del('courses_list');
+
+      return res.json(this.formatResponse(updatedCourse));
     } catch (error) {
-        res.status(500).json({ error: 'Error fetching courses' });
+      await transaction.rollback();
+      return this.handleError(error, res);
     }
-};
+  }
 
-/**
- * Retrieve a course by ID with caching - Accessible by all users
- */
-exports.getCourseById = async (req, res) => {
-    const { id } = req.params;
-    const cacheKey = `course_${id}`;
-
+  async listCourses(req, res) {
     try {
-        const cachedCourse = await redisClient.get(cacheKey);
-        if (cachedCourse) return res.json(JSON.parse(cachedCourse));
+      const { page = 1, limit = 10, status, category, search } = req.query;
+      const cacheKey = `courses_${page}_${limit}_${status}_${category}_${search}`;
+      
+      const cachedData = await redisClient.get(cacheKey);
+      if (cachedData) return res.json(JSON.parse(cachedData));
 
-        const course = await Course.findByPk(id, {
-            include: [
-                { model: Status, as: 'status' },
-                { model: User, as: 'teacher', attributes: ['id', 'name', 'email'] }
-            ]
-        });
+      const where = {};
+      if (status) where.status_id = status;
+      if (category) where.category_id = category;
+      if (search) {
+        where[Op.or] = [
+          { 'title.en': { [Op.iLike]: `%${search}%` } },
+          { 'title.pt': { [Op.iLike]: `%${search}%` } }
+        ];
+      }
 
-        if (!course) return res.status(404).json({ error: 'Course not found' });
+      const { rows: courses, count } = await Course.findAndCountAll({
+        where,
+        include: this.getCourseIncludes(),
+        limit: parseInt(limit),
+        offset: (page - 1) * parseInt(limit),
+        order: [['created_at', 'DESC']]
+      });
 
-        await redisClient.set(cacheKey, JSON.stringify(course), 'EX', 3600); // Cache for 1 hour
-        res.json(course);
+      const result = {
+        courses,
+        pagination: {
+          total: count,
+          pages: Math.ceil(count / limit),
+          currentPage: parseInt(page),
+          limit: parseInt(limit)
+        }
+      };
+
+      await redisClient.set(cacheKey, JSON.stringify(result), 'EX', 300);
+
+      return res.json(this.formatResponse(result));
     } catch (error) {
-        res.status(500).json({ error: 'Error fetching course' });
+      return this.handleError(error, res);
     }
-};
+  }
 
-/**
- * Update a course - Only accessible by teachers and admins
- */
-exports.updateCourse = async (req, res) => {
-    if (req.user.privilege_id !== 'teacher' && req.user.privilege_id !== 'admin') {
-        return res.status(403).json({ error: 'Insufficient privileges' });
-    }
+  getCourseIncludes() {
+    return [
+      { model: User, as: 'teacher', attributes: ['username', 'email'] },
+      { model: Category, as: 'category', attributes: ['name'] },
+      { model: Status, as: 'status', attributes: ['name'] }
+    ];
+  }
+}
 
-    const { id } = req.params;
-    const { title, subtitle, description, price, status_id, teacher_id } = req.body;
-
-    try {
-        const course = await Course.findByPk(id);
-        if (!course) return res.status(404).json({ error: 'Course not found' });
-
-        // Update the slug if the title changes
-        const updatedData = {
-            title,
-            subtitle,
-            description,
-            price,
-            status_id,
-            teacher_id,
-            slug: title ? slugify(title, { lower: true, strict: true }) : course.slug
-        };
-
-        await Course.update(updatedData, { where: { id } });
-
-        // Clear caches as the course details are updated
-        await redisClient.del('all_courses');
-        await redisClient.del(`course_${id}`);
-        res.json({ message: 'Course updated successfully' });
-    } catch (error) {
-        res.status(500).json({ error: 'Error updating course' });
-    }
-};
-
-/**
- * Delete a course - Only accessible by admins
- */
-exports.deleteCourse = async (req, res) => {
-    if (req.user.privilege_id !== 'admin') {
-        return res.status(403).json({ error: 'Only admins can delete courses' });
-    }
-
-    const { id } = req.params;
-
-    try {
-        const course = await Course.findByPk(id);
-        if (!course) return res.status(404).json({ error: 'Course not found' });
-
-        await course.destroy();
-
-        // Clear caches as a course is deleted
-        await redisClient.del('all_courses');
-        await redisClient.del(`course_${id}`);
-        res.json({ message: 'Course deleted successfully' });
-    } catch (error) {
-        res.status(500).json({ error: 'Error deleting course' });
-    }
-};
+module.exports = new CourseController();
