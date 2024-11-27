@@ -1,121 +1,18 @@
-const express = require("express");
-const router = express.Router();
-const { models } = require("../config/db");
-const authenticateToken = require("../middleware/auth");
-const userController = require("../controllers/userController");
+const router = require('express').Router();
+const UserController = require('../controllers/UserController');
+const auth = require('../middleware/auth');
+const authorize = require('../middleware/authorize');
+const { validateUser } = require('../validators/userValidator');
+const createLimiter = require('../middleware/rateLimiter');
 
-// Apply authentication middleware to all routes
-router.use(authenticateToken);
+// Authentication middleware
+router.use(auth);
 
-// Get all users route
-router.get("/all", async (req, res) => {
-  try {
-    // Ensure user is authenticated and has admin privileges
-    if (!req.user) {
-      return res.status(401).json({ error: "No authenticated user" });
-    }
-
-    if (!req.user.privilege || req.user.privilege.name !== "admin") {
-      return res.status(403).json({ error: "Admin privileges required" });
-    }
-
-    // Use models from imported db config
-    const { User, Privilege } = models;
-
-    const users = await User.findAll({
-      include: [
-        {
-          model: Privilege,
-          as: "privilege",
-          attributes: ["name"],
-        },
-      ],
-    });
-
-    // Format users for response
-    const formattedUsers = users.map((user) => ({
-      id: user.id,
-      name: user.username || user.name,
-      email: user.email,
-      privilege: user.privilege ? user.privilege.name : null,
-      birthday: user.birthday,
-      createdAt: user.createdAt,
-    }));
-
-    res.json(formattedUsers);
-  } catch (error) {
-    console.error("Error in getAllUsers:", error);
-    res.status(500).json({
-      error: "Error fetching users",
-      details:
-        process.env.NODE_ENV === "development" ? error.message : undefined,
-    });
-  }
-});
-
-// Delete user route
-router.delete("/:id", async (req, res) => {
-  const { id } = req.params;
-
-  try {
-    // Ensure user is authenticated and has admin privileges
-    if (!req.user) {
-      return res.status(401).json({ error: "No authenticated user" });
-    }
-
-    if (!req.user.privilege || req.user.privilege.name !== "admin") {
-      return res.status(403).json({ error: "Admin privileges required" });
-    }
-
-    // Use models from imported db config
-    const { User } = models;
-
-    // Find user
-    const user = await User.findByPk(id);
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
-
-    // Prevent admin from deleting themselves
-    if (user.id === req.user.id) {
-      return res.status(400).json({ error: "Cannot delete your own account" });
-    }
-
-    // Delete user
-    await user.destroy();
-
-    res.json({ message: "User deleted successfully" });
-  } catch (error) {
-    console.error("Error deleting user:", error);
-    res.status(500).json({
-      error: "Error deleting user",
-      details:
-        process.env.NODE_ENV === "development" ? error.message : undefined,
-    });
-  }
-});
-
-// Update users
-router.get("/:id", userController.getUserById);
-router.put(
-  "/:id",
-  async (req, res, next) => {
-    try {
-      // Verify if the user is admin or if they are trying to update their own profile
-      if (
-        req.user.privilege?.name !== "admin" &&
-        req.user.id !== parseInt(req.params.id)
-      ) {
-        return res
-          .status(403)
-          .json({ error: "Unauthorized to update this user" });
-      }
-      next();
-    } catch (error) {
-      next(error);
-    }
-  },
-  userController.updateUser
-);
+// User routes
+router.get('/all', authorize(['admin']), UserController.getAllUsers);
+router.get('/me', UserController.getCurrentUser);
+router.get('/:id', UserController.getUserById);
+router.put('/:id', validateUser, UserController.updateUser);
+router.delete('/:id', authorize(['admin']), UserController.deleteUser);
 
 module.exports = router;

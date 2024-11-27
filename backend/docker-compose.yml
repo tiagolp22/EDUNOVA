@@ -1,3 +1,5 @@
+version: "3.8"
+
 services:
   frontend:
     build:
@@ -6,18 +8,17 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ../frontend/src:/frontend/src
-      - /frontend/node_modules
+      - "../frontend/src:/frontend/src"
+      - "/frontend/node_modules"
     environment:
-      - NODE_ENV=development
-      - CHOKIDAR_USEPOLLING=true
-      - WATCHPACK_POLLING=true
-      - FAST_REFRESH=true
-      - WDS_SOCKET_PORT=0
+      NODE_ENV: development
+      CHOKIDAR_USEPOLLING: true
+      WATCHPACK_POLLING: true
+      FAST_REFRESH: true
+      WDS_SOCKET_PORT: 0
     command: npm start
     networks:
       - app-network
-    # Adiciona healthcheck para o frontend
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000"]
       interval: 30s
@@ -31,25 +32,25 @@ services:
     ports:
       - "5000:5000"
     environment:
-      - DB_HOST=db
-      - DB_PORT=5432
-      - DB_NAME=mydatabase
-      - DB_USER=postgres
-      - DB_PASSWORD=2213Tb
-      - JWT_SECRET=mysecretkey
-      - JWT_EXPIRATION=36000
-      - NODE_ENV=development
-      - CHOKIDAR_USEPOLLING=true  # Adiciona polling para nodemon também
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: edunova
+      DB_USER: postgres
+      DB_PASSWORD: 2213Tb
+      JWT_SECRET: mysecretkey
+      JWT_EXPIRATION: 36000
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      NODE_ENV: development
     depends_on:
       - db
       - redis
     volumes:
-      - .:/app
-      - /app/node_modules
+      - ".:/app"
+      - "/app/node_modules"
     command: npm run dev
     networks:
       - app-network
-    # Adiciona healthcheck para o backend
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
       interval: 30s
@@ -59,17 +60,16 @@ services:
   db:
     image: postgres:13
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=2213Tb
-      - POSTGRES_DB=mydatabase
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 2213Tb
+      POSTGRES_DB: edunova
     ports:
       - "5432:5432"
     volumes:
-      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - "./db/init.sql:/docker-entrypoint-initdb.d/init.sql"
       - pgdata:/var/lib/postgresql/data
     networks:
       - app-network
-    # Adiciona healthcheck para o postgres
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
@@ -82,7 +82,6 @@ services:
       - "6379:6379"
     networks:
       - app-network
-    # Adiciona healthcheck para o redis
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -91,8 +90,6 @@ services:
 
 volumes:
   pgdata:
-    driver: local
-  node_modules:
     driver: local
 
 networks:

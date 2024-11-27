@@ -1,203 +1,134 @@
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const db = require("../models");
-const config = require("../config/config");
-const redisClient = require("../services/redisClient");
+const BaseController = require('./base/BaseController');
+const { User } = require('../models');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const { Op } = require('sequelize');
+const redisClient = require('../services/redisClient');
 
-const authController = {
-  /**
-   * User registration controller
-   */
-  register: async (req, res) => {
-    const { username, email, password } = req.body;
+class AuthController extends BaseController {
+  constructor() {
+    super(User);
+    this.register = this.register.bind(this);
+    this.login = this.login.bind(this);
+    this.logout = this.logout.bind(this);
+  }
 
+  async register(req, res) {
     try {
-      // Input validation
-      if (!username || !email || !password) {
-        return res.status(400).json({
-          error: "All fields are required",
-          details: {
-            message: "Username, email and password are required",
-          },
-        });
-      }
+      const { username, email, password, birthday, name, privilege_id = 3 } = req.body;
 
-      // Check for existing user with same email or username
-      const existingUser = await db.User.findOne({
+      // Check if user already exists
+      const existingUser = await this.model.findOne({
         where: {
-          [db.Sequelize.Op.or]: [{ email }, { username }],
-        },
+          [Op.or]: [{ email }, { username }]
+        }
       });
 
       if (existingUser) {
-        return res.status(400).json({
-          error:
-            existingUser.email === email
-              ? "Email already registered"
-              : "Username already taken",
+        return res.status(409).json({
+          error: 'User already exists',
+          details: existingUser.email === email ? 'Email already registered' : 'Username already taken'
         });
       }
 
-      // Password length validation as per model requirements
-      if (password.length < 8 || password.length > 128) {
-        return res.status(400).json({
-          error: "Invalid password",
-          details: {
-            message: "Password must be between 8 and 128 characters",
-          },
-        });
-      }
+      // Hash password
+      const hashedPassword = await bcrypt.hash(password, 12);
 
-      // Hash password before storing
-      const hashedPassword = await bcrypt.hash(password, 10);
-
-      // Create new user record with default privilege
-      const newUser = await db.User.create({
+      // Create user
+      const user = await this.model.create({
         username,
         email,
         password: hashedPassword,
-        privilege_id: 3, // Default to subscriber
+        birthday,
+        name,
+        privilege_id
       });
 
-      // Prepare response (excluding password)
-      const userResponse = newUser.toJSON();
-      delete userResponse.password;
+      // Remove password from response
+      const { password: _, ...userData } = user.toJSON();
 
-      res.status(201).json({
-        message: "User registered successfully",
-        user: userResponse,
-      });
+      return res.status(201).json(
+        this.formatResponse(userData, 'User registered successfully')
+      );
     } catch (error) {
-      console.error("Error creating user:", error);
-
-      if (error.name === "SequelizeValidationError") {
-        return res.status(400).json({
-          error: "Validation error",
-          details: error.errors.map((err) => ({
-            field: err.path,
-            message: err.message,
-          })),
-        });
-      }
-
-      if (error.name === "SequelizeUniqueConstraintError") {
-        return res.status(400).json({
-          error: "Duplicate entry",
-          details: error.errors.map((err) => ({
-            field: err.path,
-            message: err.message,
-          })),
-        });
-      }
-
-      res.status(500).json({
-        error: "Internal Server Error: Unable to create user",
-        details:
-          process.env.NODE_ENV === "development" ? error.message : undefined,
-      });
+      console.error('Registration error:', error);
+      return this.handleError(error, res);
     }
-  },
+  }
 
-  /**
-   * User authentication controller
-   */
-  login: async (req, res) => {
-    const { email, password } = req.body;
-
+  async login(req, res) {
     try {
-      // Input validation
-      if (!email || !password) {
-        return res.status(400).json({
-          error: "All fields are required",
-          details: {
-            message: "Email and password are required",
-          },
-        });
-      }
+      const { email, password } = req.body;
 
-      // Find user and include privilege information
-      const user = await db.User.findOne({
+      const user = await this.model.findOne({
         where: { email },
-        include: [
-          {
-            model: db.Privilege,
-            as: "privilege",
-            attributes: ["name"],
-          },
-        ],
+        include: [{
+          model: this.model.sequelize.models.Privilege,
+          as: 'privilege',
+          attributes: ['name']
+        }]
       });
 
       if (!user) {
-        return res.status(404).json({
-          error: "Authentication failed",
-          details: {
-            message: "Invalid email or password",
-          },
-        });
-      }
-
-      const isPasswordValid = await bcrypt.compare(password, user.password);
-      if (!isPasswordValid) {
         return res.status(401).json({
-          error: "Authentication failed",
-          details: {
-            message: "Invalid email or password",
-          },
+          error: 'Invalid credentials'
         });
       }
 
-      // Generate token without expiration
+      const isValidPassword = await bcrypt.compare(password, user.password);
+      if (!isValidPassword) {
+        return res.status(401).json({
+          error: 'Invalid credentials'
+        });
+      }
+
+      // Aumentando o tempo de expiração para 7 dias
       const token = jwt.sign(
         {
           id: user.id,
           email: user.email,
-          privilege_id: user.privilege_id,
+          privilege: user.privilege?.name
         },
-        config.jwt.secret
+        process.env.JWT_SECRET || 'your_jwt_secret',
+        { expiresIn: '7d' }  // 7 dias
       );
 
-      // Store token in Redis
-      await redisClient.set(`auth_token_${user.id}`, token);
+      // Atualizando o tempo no Redis também
+      await redisClient.set(
+        `auth_${token}`,
+        'valid',
+        'EX',
+        7 * 24 * 60 * 60 // 7 dias em segundos
+      );
 
-      res.json({
-        message: "Login successful",
-        token,
-        user: {
-          id: user.id,
-          username: user.username,
-          email: user.email,
-          privilege: {
-            name: user.privilege?.name,
-          },
-        },
-      });
+      const { password: _, ...userData } = user.toJSON();
+
+      return res.json(
+        this.formatResponse({
+          user: userData,
+          token
+        })
+      );
     } catch (error) {
-      console.error("Error during login:", error);
-      res.status(500).json({
-        error: "Internal Server Error: Unable to log in",
-        details:
-          process.env.NODE_ENV === "development" ? error.message : undefined,
-      });
+      console.error('Login error:', error);
+      return this.handleError(error, res);
     }
-  },
+  }
 
-  /**
-   * User logout controller
-   */
-  logout: async (req, res) => {
+  async logout(req, res) {
     try {
-      const userId = req.user.id;
-      await redisClient.del(`auth_token_${userId}`);
-      res.json({ message: "Logout successful" });
-    } catch (error) {
-      console.error("Error during logout:", error);
-      res.status(500).json({
-        error: "Internal Server Error: Unable to logout",
-        details:
-          process.env.NODE_ENV === "development" ? error.message : undefined,
-      });
-    }
-  },
-};
+      const token = req.headers.authorization?.split(' ')[1];
+      if (token) {
+        await redisClient.del(`auth_${token}`);
+      }
 
-module.exports = authController;
+      return res.json(
+        this.formatResponse(null, 'Logged out successfully')
+      );
+    } catch (error) {
+      return this.handleError(error, res);
+    }
+  }
+}
+
+module.exports = new AuthController();

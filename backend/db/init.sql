@@ -1,120 +1,177 @@
-BEGIN;
+-- Disable foreign key checks during initialization
+SET session_replication_role = 'replica';
 
--- Drop existing tables if they exist
-DROP TABLE IF EXISTS payments, progress, enrollments, media_files, classes, courses, status, privileges, users, categories CASCADE;
+-- Clear existing tables if they exist
+DROP TABLE IF EXISTS 
+    payments,
+    progress,
+    enrollments,
+    media_files,
+    classes,
+    courses,
+    categories,
+    status,
+    users,
+    privileges CASCADE;
 
--- Table: privileges (user roles and permissions)
-CREATE TABLE IF NOT EXISTS public.privileges (
+-- Create and populate privileges table
+CREATE TABLE privileges (
     id SERIAL PRIMARY KEY,
-    name TEXT NOT NULL
-);
-
--- Table: categories (categories for organizing courses)
-CREATE TABLE IF NOT EXISTS public.categories (
-    id SERIAL PRIMARY KEY,
-    name TEXT NOT NULL UNIQUE
-);
-
--- Table: users (students, instructors, and admins)
-CREATE TABLE IF NOT EXISTS public.users (
-    id SERIAL PRIMARY KEY,
-    name TEXT NOT NULL,
-    email TEXT NOT NULL UNIQUE,
-    password TEXT NOT NULL,
+    name JSONB NOT NULL,
     created_at TIMESTAMP DEFAULT NOW(),
-    updated_at TIMESTAMP DEFAULT NOW(),
-    birthday DATE,
-    privilege_id INTEGER REFERENCES public.privileges(id) ON DELETE NO ACTION
+    updated_at TIMESTAMP DEFAULT NOW()
 );
 
--- Table: status (for tracking the status of a course, e.g., draft, published)
-CREATE TABLE IF NOT EXISTS public.status (
+INSERT INTO privileges (name) VALUES 
+    ('{"en": "admin", "pt": "Administrador"}'),
+    ('{"en": "teacher", "pt": "Professor"}'),
+    ('{"en": "student", "pt": "Estudante"}');
+
+-- Create users table
+CREATE TABLE users (
     id SERIAL PRIMARY KEY,
-    name JSONB NOT NULL
+    name TEXT,
+    username TEXT UNIQUE NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    birthday DATE,
+    privilege_id INTEGER NOT NULL REFERENCES privileges(id),
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
 );
 
--- Table: courses (multilingual support for course content)
-CREATE TABLE IF NOT EXISTS public.courses (
+-- Create and populate status table
+CREATE TABLE status (
+    id SERIAL PRIMARY KEY,
+    name JSONB NOT NULL UNIQUE,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+INSERT INTO status (name) VALUES 
+    ('{"en": "active", "pt": "Ativo"}'),
+    ('{"en": "inactive", "pt": "Inativo"}'),
+    ('{"en": "draft", "pt": "Rascunho"}'),
+    ('{"en": "published", "pt": "Publicado"}'),
+    ('{"en": "archived", "pt": "Arquivado"}');
+
+-- Create and populate categories table
+CREATE TABLE categories (
+    id SERIAL PRIMARY KEY,
+    name JSONB NOT NULL UNIQUE,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+INSERT INTO categories (name) VALUES 
+    ('{"en": "Programming", "pt": "Programação"}'),
+    ('{"en": "Design", "pt": "Design"}'),
+    ('{"en": "Business", "pt": "Negócios"}'),
+    ('{"en": "Marketing", "pt": "Marketing"}'),
+    ('{"en": "Languages", "pt": "Idiomas"}');
+
+-- Create courses table
+CREATE TABLE courses (
     id SERIAL PRIMARY KEY,
     title JSONB NOT NULL,
     subtitle JSONB NOT NULL,
     description JSONB NOT NULL,
-    price NUMERIC(10, 2) NOT NULL CHECK (price >= 0),
+    price NUMERIC(10, 2) NOT NULL,
     created_at TIMESTAMP DEFAULT NOW(),
-    status_id INTEGER NOT NULL REFERENCES public.status(id),
-    teacher_id INTEGER REFERENCES public.users(id) ON DELETE SET NULL,
-    category_id INTEGER REFERENCES public.categories(id) ON DELETE SET NULL
+    updated_at TIMESTAMP DEFAULT NOW(),
+    status_id INTEGER NOT NULL REFERENCES status(id),
+    teacher_id INTEGER NOT NULL REFERENCES users(id),
+    category_id INTEGER NOT NULL REFERENCES categories(id)
 );
 
--- Table: classes (individual lessons within courses)
-CREATE TABLE IF NOT EXISTS public.classes (
+-- Create classes table
+CREATE TABLE classes (
     id SERIAL PRIMARY KEY,
     title JSONB NOT NULL,
     subtitle JSONB NOT NULL,
     description JSONB NOT NULL,
     video_path TEXT,
-    course_id INTEGER REFERENCES public.courses(id) ON DELETE CASCADE,
-    created_at TIMESTAMP DEFAULT NOW()
+    course_id INTEGER NOT NULL REFERENCES courses(id),
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    order_index INTEGER NOT NULL DEFAULT 0
 );
 
--- Table: media_files (handling images, documents, or video metadata)
-CREATE TABLE IF NOT EXISTS public.media_files (
+-- Create media_files table
+CREATE TABLE media_files (
     id SERIAL PRIMARY KEY,
-    file_type VARCHAR(10) CHECK (file_type IN ('pdf', 'image', 'video')),
+    file_type TEXT NOT NULL CHECK (file_type IN ('image', 'video', 'document')),
     file_path TEXT NOT NULL,
-    course_id INTEGER REFERENCES public.courses(id),
-    class_id INTEGER REFERENCES public.classes(id),
-    uploaded_at TIMESTAMP DEFAULT NOW()
+    course_id INTEGER REFERENCES courses(id),
+    class_id INTEGER REFERENCES classes(id),
+    uploaded_by INTEGER REFERENCES users(id),
+    uploaded_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
 );
 
--- Table: enrollments (track student enrollments in courses)
-CREATE TABLE IF NOT EXISTS public.enrollments (
+-- Create enrollments table
+CREATE TABLE enrollments (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES public.users(id) ON DELETE CASCADE,
-    course_id INTEGER REFERENCES public.courses(id) ON DELETE CASCADE,
+    user_id INTEGER NOT NULL REFERENCES users(id),
+    course_id INTEGER NOT NULL REFERENCES courses(id),
     is_paid BOOLEAN DEFAULT FALSE,
-    enrolled_at TIMESTAMP DEFAULT NOW()
+    enrolled_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW(),
+    status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'completed', 'cancelled')),
+    UNIQUE (user_id, course_id)
 );
 
--- Table: progress (track progress of students within a course)
-CREATE TABLE IF NOT EXISTS public.progress (
+-- Create progress table
+CREATE TABLE progress (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES public.users(id) ON DELETE CASCADE,
-    course_id INTEGER REFERENCES public.courses(id) ON DELETE CASCADE,
-    class_id INTEGER REFERENCES public.classes(id) ON DELETE CASCADE,
-    progress_percentage DECIMAL(5, 2),
-    last_accessed TIMESTAMP
+    user_id INTEGER NOT NULL REFERENCES users(id),
+    course_id INTEGER NOT NULL REFERENCES courses(id),
+    class_id INTEGER REFERENCES classes(id),
+    progress_percentage DECIMAL(5, 2) DEFAULT 0.0 CHECK (progress_percentage >= 0 AND progress_percentage <= 100),
+    last_accessed TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
 );
 
--- Table: payments (tracking course purchases and payments)
-CREATE TABLE IF NOT EXISTS public.payments (
+-- Create payments table
+CREATE TABLE payments (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES public.users(id) ON DELETE CASCADE,
-    course_id INTEGER REFERENCES public.courses(id) ON DELETE CASCADE,
-    amount NUMERIC(10, 2) NOT NULL,
-    status VARCHAR(20) CHECK (status IN ('pending', 'completed', 'failed')),
-    payment_gateway_response JSON,
-    payment_date TIMESTAMP DEFAULT NOW()
+    user_id INTEGER NOT NULL REFERENCES users(id),
+    course_id INTEGER NOT NULL REFERENCES courses(id),
+    amount NUMERIC(10, 2) NOT NULL CHECK (amount >= 0),
+    status TEXT NOT NULL CHECK (status IN ('pending', 'completed', 'failed', 'refunded')),
+    payment_method TEXT NOT NULL,
+    payment_gateway_response JSONB,
+    payment_date TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
 );
 
--- Insert initial data into the privileges table
-INSERT INTO public.privileges (id, name) VALUES
-    (1, 'admin'),
-    (2, 'teacher'),
-    (3, 'student')
-ON CONFLICT (id) DO NOTHING;
+-- Create admin user for initial access
+INSERT INTO users (
+    username,
+    email,
+    password,
+    privilege_id,
+    name
+) VALUES (
+    'admin',
+    'admin@edunova.com',
+    '$2a$12$1InE3Tq5B6J.tAQFzm0WY.TtYE9dGKh8jqQHBqiCWfE5d.ixw0ry6', -- Password: Admin123!
+    1,
+    'System Administrator'
+);
 
--- Insert initial data into the users table with hashed passwords
-INSERT INTO public.users (name, email, password, privilege_id, created_at, updated_at)
-VALUES
-    ('Admin User', 'admin@example.com', '$2a$10$WzJJhbChZ9PE.v9KJHG3RuV/p.zDSNnPxUp3M9u9i0imwLtDh5lS6', 1, NOW(), NOW()), -- password: admin123
-    ('Teacher User', 'teacher@example.com', '$2a$10$Tx3zKfi1Eg4TuwnY.kHveOLFs2A8Cq/oDyD1nI1wrVDWXlmBzXt0W', 2, NOW(), NOW()), -- password: teacher123
-    ('Student User', 'student@example.com', '$2a$10$y8kO/vPEvhIfG/5FlOYeZOf.wH/y2UpDBB4TYyP9VeXe7qxGbX5W.', 3, NOW(), NOW()); -- password: student123
+-- Create indexes for better performance
+CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_users_username ON users(username);
+CREATE INDEX idx_courses_status ON courses(status_id);
+CREATE INDEX idx_courses_category ON courses(category_id);
+CREATE INDEX idx_classes_course ON classes(course_id);
+CREATE INDEX idx_enrollments_user ON enrollments(user_id);
+CREATE INDEX idx_enrollments_course ON enrollments(course_id);
+CREATE INDEX idx_progress_user ON progress(user_id);
+CREATE INDEX idx_progress_course ON progress(course_id);
+CREATE INDEX idx_payments_user ON payments(user_id);
+CREATE INDEX idx_payments_course ON payments(course_id);
 
--- Indexing for better performance (indexes on frequently queried fields)
-CREATE INDEX idx_user_email ON public.users(email);
-CREATE INDEX idx_courses_title ON public.courses((title->>'en'));
-CREATE INDEX idx_enrollments_user_course ON public.enrollments(user_id, course_id);
-CREATE INDEX idx_progress_user_course ON public.progress(user_id, course_id);
-
-COMMIT;
+-- Enable foreign key checks
+SET session_replication_role = 'origin';

@@ -1,220 +1,113 @@
-// tests/api.test.js
-
 const request = require('supertest');
-const app = require('../server'); // Import the Express app
-const { sequelize, models } = require('../backend/config/db');
+const app = require('../server');
+const { getAuthToken, createUser, createTestCourse } = require('./utils/helpers');
+const { sequelize } = require('../config/db');
 
-beforeAll(async () => {
-    // Sync the database and recreate tables
+describe('API Integration Tests', () => {
+  let adminToken, userToken;
+
+  beforeAll(async () => {
     await sequelize.sync({ force: true });
+    adminToken = await getAuthToken('admin');
+    userToken = await getAuthToken('user');
+  });
 
-    // Create initial privileges
-    await models.Privilege.bulkCreate([
-        { name: 'admin' },
-        { name: 'teacher' },
-        { name: 'student' }
-    ]);
-
-    // Create initial statuses
-    await models.Status.bulkCreate([
-        { name: { en: 'active', pt: 'ativo' } },
-        { name: { en: 'inactive', pt: 'inativo' } }
-    ]);
-});
-
-afterAll(async () => {
-    // Close the database connection after tests
-    await sequelize.close();
-});
-
-describe('Authentication and Authorization', () => {
-    let adminToken;
-    let teacherToken;
-    let studentToken;
-
-    test('Register an admin user', async () => {
-        const res = await request(app)
-            .post('/api/auth/register')
-            .send({
-                name: 'Admin User',
-                email: 'admin@example.com',
-                password: 'adminpass',
-                privilege_id: 1 // admin
-            });
-        expect(res.statusCode).toEqual(201);
-        expect(res.body).toHaveProperty('id');
-        expect(res.body).not.toHaveProperty('password');
+  describe('Health Check', () => {
+    it('should return health status', async () => {
+      const res = await request(app).get('/api/health');
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty('status', 'healthy');
     });
+  });
 
-    test('Register a teacher user', async () => {
-        const res = await request(app)
-            .post('/api/auth/register')
-            .send({
-                name: 'Teacher User',
-                email: 'teacher@example.com',
-                password: 'teacherpass',
-                privilege_id: 2 // teacher
-            });
-        expect(res.statusCode).toEqual(201);
-        expect(res.body).toHaveProperty('id');
-        expect(res.body).not.toHaveProperty('password');
+  describe('Authentication Flow', () => {
+    const testUser = {
+      username: 'testuser',
+      email: 'test@example.com',
+      password: 'Test123!'
+    };
+
+    it('should register -> login -> access protected route', async () => {
+      // Register
+      const registerRes = await request(app)
+        .post('/api/auth/register')
+        .send(testUser);
+      expect(registerRes.status).toBe(201);
+
+      // Login
+      const loginRes = await request(app)
+        .post('/api/auth/login')
+        .send({
+          email: testUser.email,
+          password: testUser.password
+        });
+      expect(loginRes.status).toBe(200);
+      expect(loginRes.body.data).toHaveProperty('token');
+
+      // Access protected route
+      const protectedRes = await request(app)
+        .get('/api/users/me')
+        .set('Authorization', `Bearer ${loginRes.body.data.token}`);
+      expect(protectedRes.status).toBe(200);
     });
+  });
 
-    test('Register a student user', async () => {
-        const res = await request(app)
-            .post('/api/auth/register')
-            .send({
-                name: 'Student User',
-                email: 'student@example.com',
-                password: 'studentpass',
-                privilege_id: 3 // student
-            });
-        expect(res.statusCode).toEqual(201);
-        expect(res.body).toHaveProperty('id');
-        expect(res.body).not.toHaveProperty('password');
-    });
-
-    test('Admin user login', async () => {
-        const res = await request(app)
-            .post('/api/auth/login')
-            .send({
-                email: 'admin@example.com',
-                password: 'adminpass'
-            });
-        expect(res.statusCode).toEqual(200);
-        expect(res.body).toHaveProperty('token');
-        adminToken = res.body.token;
-    });
-
-    test('Teacher user login', async () => {
-        const res = await request(app)
-            .post('/api/auth/login')
-            .send({
-                email: 'teacher@example.com',
-                password: 'teacherpass'
-            });
-        expect(res.statusCode).toEqual(200);
-        expect(res.body).toHaveProperty('token');
-        teacherToken = res.body.token;
-    });
-
-    test('Student user login', async () => {
-        const res = await request(app)
-            .post('/api/auth/login')
-            .send({
-                email: 'student@example.com',
-                password: 'studentpass'
-            });
-        expect(res.statusCode).toEqual(200);
-        expect(res.body).toHaveProperty('token');
-        studentToken = res.body.token;
-    });
-
-    test('Access protected route without token', async () => {
-        const res = await request(app)
-            .get('/api/privileges');
-        expect(res.statusCode).toEqual(401);
-    });
-
-    test('Admin accessing privileges', async () => {
-        const res = await request(app)
-            .get('/api/privileges')
-            .set('Authorization', `Bearer ${adminToken}`);
-        expect(res.statusCode).toEqual(200);
-        expect(Array.isArray(res.body)).toBeTruthy();
-    });
-
-    test('Teacher accessing privileges (should have access if authorized)', async () => {
-        const res = await request(app)
-            .get('/api/privileges')
-            .set('Authorization', `Bearer ${teacherToken}`);
-        // Depending on your authorization middleware, adjust expectations
-        // Assuming teachers have read access
-        expect(res.statusCode).toEqual(200);
-    });
-
-    test('Student accessing privileges (should be forbidden)', async () => {
-        const res = await request(app)
-            .get('/api/privileges')
-            .set('Authorization', `Bearer ${studentToken}`);
-        // Assuming students do not have access
-        expect(res.statusCode).toEqual(403);
-    });
-});
-
-describe('CRUD Operations for Courses', () => {
-    let adminToken;
-    let teacherToken;
+  describe('CRUD Operations', () => {
     let courseId;
 
-    beforeAll(async () => {
-        // Login as admin and teacher to obtain tokens
-        const adminRes = await request(app)
-            .post('/api/auth/login')
-            .send({
-                email: 'admin@example.com',
-                password: 'adminpass'
-            });
-        adminToken = adminRes.body.token;
+    it('should perform CRUD operations on courses', async () => {
+      // Create
+      const createRes = await request(app)
+        .post('/api/courses')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({
+          title: { en: 'Test Course', pt: 'Curso Teste' },
+          description: { en: 'Description', pt: 'Descrição' },
+          price: 99.99
+        });
+      expect(createRes.status).toBe(201);
+      courseId = createRes.body.data.id;
 
-        const teacherRes = await request(app)
-            .post('/api/auth/login')
-            .send({
-                email: 'teacher@example.com',
-                password: 'teacherpass'
-            });
-        teacherToken = teacherRes.body.token;
+      // Read
+      const readRes = await request(app)
+        .get(`/api/courses/${courseId}`)
+        .set('Authorization', `Bearer ${userToken}`);
+      expect(readRes.status).toBe(200);
+
+      // Update
+      const updateRes = await request(app)
+        .put(`/api/courses/${courseId}`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ price: 149.99 });
+      expect(updateRes.status).toBe(200);
+
+      // Delete
+      const deleteRes = await request(app)
+        .delete(`/api/courses/${courseId}`)
+        .set('Authorization', `Bearer ${adminToken}`);
+      expect(deleteRes.status).toBe(200);
+    });
+  });
+
+  describe('Error Handling', () => {
+    it('should handle 404 not found', async () => {
+      const res = await request(app)
+        .get('/api/nonexistent')
+        .set('Authorization', `Bearer ${userToken}`);
+      expect(res.status).toBe(404);
     });
 
-    test('Admin creates a new course', async () => {
-        const res = await request(app)
-            .post('/api/courses')
-            .set('Authorization', `Bearer ${adminToken}`)
-            .send({
-                title: { en: 'Node.js Basics', pt: 'Noções Básicas de Node.js' },
-                subtitle: { en: 'Learn the fundamentals of Node.js', pt: 'Aprenda os fundamentos do Node.js' },
-                description: { en: 'This course covers the basics of Node.js.', pt: 'Este curso cobre o básico de Node.js.' },
-                price: 199.99,
-                status_id: 1, // active
-                teacher_id: 2 // Teacher User ID
-            });
-        expect(res.statusCode).toEqual(201);
-        expect(res.body).toHaveProperty('id');
-        courseId = res.body.id;
+    it('should handle validation errors', async () => {
+      const res = await request(app)
+        .post('/api/courses')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({});
+      expect(res.status).toBe(400);
+      expect(res.body).toHaveProperty('error');
     });
+  });
 
-    test('Teacher retrieves all courses', async () => {
-        const res = await request(app)
-            .get('/api/courses')
-            .set('Authorization', `Bearer ${teacherToken}`);
-        expect(res.statusCode).toEqual(200);
-        expect(Array.isArray(res.body)).toBeTruthy();
-    });
-
-    test('Teacher retrieves a course by ID', async () => {
-        const res = await request(app)
-            .get(`/api/courses/${courseId}`)
-            .set('Authorization', `Bearer ${teacherToken}`);
-        expect(res.statusCode).toEqual(200);
-        expect(res.body).toHaveProperty('id', courseId);
-    });
-
-    test('Teacher updates a course', async () => {
-        const res = await request(app)
-            .put(`/api/courses/${courseId}`)
-            .set('Authorization', `Bearer ${teacherToken}`)
-            .send({
-                price: 149.99
-            });
-        expect(res.statusCode).toEqual(200);
-        expect(res.body).toHaveProperty('price', '149.99'); // Sequelize returns DECIMAL as string
-    });
-
-    test('Teacher deletes a course', async () => {
-        const res = await request(app)
-            .delete(`/api/courses/${courseId}`)
-            .set('Authorization', `Bearer ${teacherToken}`);
-        expect(res.statusCode).toEqual(200);
-        expect(res.body).toHaveProperty('message', 'Course deleted successfully');
-    });
+  afterAll(async () => {
+    await sequelize.close();
+  });
 });

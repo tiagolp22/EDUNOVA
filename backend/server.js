@@ -1,100 +1,62 @@
-// server.js
-
-/**
- * Main server file for the backend application.
- * Sets up Express app, middleware, routes, and starts the server.
- */
-
 const express = require("express");
 const app = express();
 const dotenv = require("dotenv");
 const helmet = require("helmet");
 const cors = require("cors");
-const rateLimit = require("express-rate-limit");
 const morgan = require("morgan");
 const { sequelize, testConnection } = require("./config/db");
 
-// Load environment variables from .env
+// Load environment variables
 dotenv.config();
 
 // Import routes
-// const authRoutes = require("./routes/auth");
 const authRoutes = require("./routes/auth");
-console.log("authRoutes type:", typeof authRoutes);
-console.log("authRoutes is router?", authRoutes instanceof express.Router);
-
 const userRoutes = require("./routes/users");
-const privilegeRoutes = require("./routes/privileges");
-const statusRoutes = require("./routes/statuses");
-const courseRoutes = require("./routes/courses");
-const classRoutes = require("./routes/classes");
-const mediaFileRoutes = require("./routes/mediaFiles");
-const enrollmentRoutes = require("./routes/enrollments");
-const progressRoutes = require("./routes/progress");
-const paymentRoutes = require("./routes/payments");
 
-// Import error handling middleware
-const errorHandler = require("./middleware/errorHandler");
-const authenticateToken = require("./middleware/auth"); // Middleware de autenticação
-
-// Security and logging middlewares
+// Middleware for security and logging
 app.use(express.json());
 app.use(helmet());
 app.use(cors());
 app.use(morgan("dev"));
 
-// Rate limiting middleware to prevent abuse
-const limiter = rateLimit({
-  windowMs: 24 * 60 * 60 * 1000, // 24 hours in milliseconds (24h * 60min * 60sec * 1000ms)
-  max: 10000, // Increased limit to 10000 requests per 24h period
-  message: {
-    error: "Too many requests from this IP, please try again in 24 hours",
-    retryAfter: "24 hours",
-  },
-  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'healthy', timestamp: new Date() });
 });
 
-// Apply rate limiting to all routes
-app.use(limiter);
-
-// Set up routes with necessary authentication middleware
-app.use("/api/auth", authRoutes); // No auth required
+// Routes
+app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
-app.use("/api/privileges", authenticateToken, privilegeRoutes);
-app.use("/api/statuses", authenticateToken, statusRoutes);
-app.use("/api/courses", authenticateToken, courseRoutes);
-app.use("/api/classes", authenticateToken, classRoutes);
-app.use("/api/media-files", authenticateToken, mediaFileRoutes);
-app.use("/api/enrollments", authenticateToken, enrollmentRoutes);
-app.use("/api/progress", authenticateToken, progressRoutes);
-app.use("/api/payments", authenticateToken, paymentRoutes);
 
-// Error handling middleware (should be after all other app.use() calls)
-app.use(errorHandler);
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(err.status || 500).json({
+    error: err.message || 'Internal server error',
+    ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+  });
+});
 
-// Start the server
 const PORT = process.env.PORT || 5000;
 
 const startServer = async () => {
   try {
-    // Test database connection
+    console.log("Testing database connection...");
     await testConnection();
+    console.log("✅ Database connected successfully");
 
-    // Sync models with the database
-    await sequelize.sync({ alter: true });
+    console.log("Syncing database models...");
+    await sequelize.sync();
 
-    // Start listening for requests
     app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
+      console.log(`🚀 Server is running on port ${PORT}`);
     });
   } catch (error) {
-    console.error("Unable to start the server:", error);
-    process.exit(1); // Exit with failure
+    console.error("❌ Unable to start the server:", error);
+    process.exit(1);
   }
 };
 
-// Only start the server if not in testing mode
 if (process.env.NODE_ENV !== "test") {
   startServer();
 }

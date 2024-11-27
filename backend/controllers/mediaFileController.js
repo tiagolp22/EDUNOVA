@@ -1,94 +1,85 @@
-const { MediaFile, Course } = require('../config/db').models;
-const { uploadToCDN, getSignedUrl } = require('../services/mediaService');
+const BaseController = require('./base/BaseController');
+const { MediaFile, Course } = require('../models');
+const { uploadToCDN, deleteFromCDN, getSignedUrl } = require('../services/mediaService');
+const { validateMediaFile } = require('../validators/mediaFileValidator');
 
-/**
- * Create a new media file - Only accessible by teachers and admins
- */
-exports.createMediaFile = async (req, res) => {
-  if (req.user.privilege_id !== 'teacher' && req.user.privilege_id !== 'admin') {
-    return res.status(403).json({ error: 'Insufficient privileges' });
+class MediaFileController extends BaseController {
+  constructor() {
+    super(MediaFile);
   }
 
-  const { course_id } = req.body;
+  async createMediaFile(req, res) {
+    const transaction = await sequelize.transaction();
+    try {
+      if (!['teacher', 'admin'].includes(req.user.privilege_id)) {
+        return res.status(403).json({ error: 'Insufficient privileges' });
+      }
 
-  try {
-    const filePath = await uploadToCDN(req.file);
-    const mediaFile = await MediaFile.create({ file_path: filePath, course_id });
-    res.status(201).json(mediaFile);
-  } catch (error) {
-    res.status(500).json({ error: 'Error uploading media file' });
-  }
-};
+      const validation = validateMediaFile(req.file);
+      if (!validation.success) {
+        return res.status(400).json({ error: validation.errors });
+      }
 
-/**
- * Retrieve all media files - Accessible by all users
- */
-exports.getAllMediaFiles = async (req, res) => {
-  try {
-    const mediaFiles = await MediaFile.findAll();
-    res.json(mediaFiles);
-  } catch (error) {
-    res.status(500).json({ error: 'Error fetching media files' });
-  }
-};
+      const filePath = await uploadToCDN(req.file, {
+        maxSize: 100 * 1024 * 1024, // 100MB
+        allowedTypes: ['image/jpeg', 'image/png', 'video/mp4', 'application/pdf']
+      });
 
-/**
- * Retrieve a specific media file with a signed URL - Accessible by all users
- */
-exports.getMediaFileById = async (req, res) => {
-  const { id } = req.params;
+      const mediaFile = await MediaFile.create({
+        file_path: filePath,
+        file_type: req.file.mimetype,
+        course_id: req.body.course_id,
+        class_id: req.body.class_id,
+        uploaded_by: req.user.id
+      }, { transaction });
 
-  try {
-    const mediaFile = await MediaFile.findByPk(id);
-    if (!mediaFile) return res.status(404).json({ error: 'Media file not found' });
-
-    const signedUrl = await getSignedUrl(mediaFile.file_path);
-    res.json({ mediaFile, signedUrl });
-  } catch (error) {
-    res.status(500).json({ error: 'Error fetching media file' });
-  }
-};
-
-/**
- * Update a media file - Only accessible by teachers and admins
- */
-exports.updateMediaFile = async (req, res) => {
-  if (req.user.privilege_id !== 'teacher' && req.user.privilege_id !== 'admin') {
-    return res.status(403).json({ error: 'Insufficient privileges' });
+      await transaction.commit();
+      return res.status(201).json(this.formatResponse(mediaFile));
+    } catch (error) {
+      await transaction.rollback();
+      return this.handleError(error, res);
+    }
   }
 
-  const { id } = req.params;
-  const { course_id } = req.body;
+  async getMediaFile(req, res) {
+    try {
+      const { id } = req.params;
+      const mediaFile = await MediaFile.findByPk(id);
 
-  try {
-    const mediaFile = await MediaFile.findByPk(id);
-    if (!mediaFile) return res.status(404).json({ error: 'Media file not found' });
+      if (!mediaFile) {
+        return res.status(404).json({ error: 'Media file not found' });
+      }
 
-    mediaFile.course_id = course_id || mediaFile.course_id;
-    await mediaFile.save();
-    res.json(mediaFile);
-  } catch (error) {
-    res.status(500).json({ error: 'Error updating media file' });
-  }
-};
+      const signedUrl = await getSignedUrl(mediaFile.file_path, {
+        expiresIn: 3600 // 1 hour
+      });
 
-/**
- * Delete a media file - Only accessible by teachers and admins
- */
-exports.deleteMediaFile = async (req, res) => {
-  if (req.user.privilege_id !== 'teacher' && req.user.privilege_id !== 'admin') {
-    return res.status(403).json({ error: 'Insufficient privileges' });
+      return res.json(this.formatResponse({ ...mediaFile.toJSON(), signedUrl }));
+    } catch (error) {
+      return this.handleError(error, res);
+    }
   }
 
-  const { id } = req.params;
+  async deleteMediaFile(req, res) {
+    const transaction = await sequelize.transaction();
+    try {
+      const { id } = req.params;
+      const mediaFile = await MediaFile.findByPk(id);
 
-  try {
-    const mediaFile = await MediaFile.findByPk(id);
-    if (!mediaFile) return res.status(404).json({ error: 'Media file not found' });
+      if (!mediaFile) {
+        return res.status(404).json({ error: 'Media file not found' });
+      }
 
-    await mediaFile.destroy();
-    res.json({ message: 'Media file deleted successfully' });
-  } catch (error) {
-    res.status(500).json({ error: 'Error deleting media file' });
+      await deleteFromCDN(mediaFile.file_path);
+      await mediaFile.destroy({ transaction });
+      
+      await transaction.commit();
+      return res.json(this.formatResponse(null, 'Media file deleted successfully'));
+    } catch (error) {
+      await transaction.rollback();
+      return this.handleError(error, res);
+    }
   }
-};
+}
+
+module.exports = new MediaFileController();

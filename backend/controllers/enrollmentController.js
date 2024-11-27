@@ -1,136 +1,143 @@
-const { Enrollment, User, Course } = require('../config/db').models;
+const BaseController = require('./base/BaseController');
+const { Enrollment, User, Course, Payment } = require('../models');
+const { sequelize } = require('../config/db');
 const { sendEnrollmentConfirmation } = require('../services/emailService');
-const { Op } = require('sequelize');
 
-/**
- * Create a new enrollment - Only accessible by students
- */
-exports.createEnrollment = async (req, res) => {
-    if (req.user.privilege_id !== 'student') {
+class EnrollmentController extends BaseController {
+  constructor() {
+    super(Enrollment);
+  }
+
+  async createEnrollment(req, res) {
+    const transaction = await sequelize.transaction();
+    try {
+      if (req.user.privilege_id !== 'student') {
+        await transaction.rollback();
         return res.status(403).json({ error: 'Only students can enroll' });
-    }
+      }
 
-    const { user_id, course_id } = req.body;
+      const { course_id } = req.body;
+      const user_id = req.user.id;
 
-    try {
-        const user = await User.findByPk(user_id);
-        if (!user) return res.status(404).json({ error: 'User not found' });
+      const [user, course] = await Promise.all([
+        User.findByPk(user_id),
+        Course.findByPk(course_id, { include: ['prerequisites'] })
+      ]);
 
-        const course = await Course.findByPk(course_id);
-        if (!course) return res.status(404).json({ error: 'Course not found' });
+      if (!user || !course) {
+        await transaction.rollback();
+        return res.status(404).json({ error: 'User or course not found' });
+      }
 
-        // Check if prerequisites are met
-        const prerequisites = await course.getPrerequisites();
-        for (let prereq of prerequisites) {
-            const completed = await Enrollment.findOne({
-                where: { user_id, course_id: prereq.id, status: 'completed' }
-            });
-            if (!completed) {
-                return res.status(400).json({ error: `Prerequisite not met: ${prereq.title}` });
-            }
-        }
-
-        // Create enrollment and send confirmation email
-        const enrollment = await Enrollment.create({ user_id, course_id });
-        sendEnrollmentConfirmation(user.email, course.title);
-
-        res.status(201).json(enrollment);
-    } catch (error) {
-        res.status(500).json({ error: 'Error creating enrollment' });
-    }
-};
-
-/**
- * Retrieve all enrollments - Accessible by admins and teachers
- */
-exports.getAllEnrollments = async (req, res) => {
-    if (req.user.privilege_id === 'student') {
-        return res.status(403).json({ error: 'Insufficient privileges' });
-    }
-
-    try {
-        const enrollments = await Enrollment.findAll({
-            include: [
-                { model: User, as: 'user', attributes: ['id', 'name', 'email'] },
-                { model: Course, as: 'course', attributes: ['id', 'title'] }
-            ]
-        });
-        res.json(enrollments);
-    } catch (error) {
-        res.status(500).json({ error: 'Error fetching enrollments' });
-    }
-};
-
-/**
- * Retrieve a specific enrollment by ID - Accessible by the enrolled student, teachers, and admins
- */
-exports.getEnrollmentById = async (req, res) => {
-    const { id } = req.params;
-
-    try {
-        const enrollment = await Enrollment.findByPk(id, {
-            include: [
-                { model: User, as: 'user', attributes: ['id', 'name', 'email'] },
-                { model: Course, as: 'course', attributes: ['id', 'title'] }
-            ]
+      // Check prerequisites
+      if (course.prerequisites?.length > 0) {
+        const completedPrereqs = await Enrollment.findAll({
+          where: {
+            user_id,
+            course_id: course.prerequisites.map(p => p.id),
+            status: 'completed'
+          }
         });
 
-        if (!enrollment) return res.status(404).json({ error: 'Enrollment not found' });
-
-        // Check if the student is accessing their own enrollment
-        if (req.user.privilege_id === 'student' && req.user.id !== enrollment.user_id) {
-            return res.status(403).json({ error: 'Insufficient privileges to view this enrollment' });
+        if (completedPrereqs.length !== course.prerequisites.length) {
+          await transaction.rollback();
+          return res.status(400).json({ error: 'Prerequisites not met' });
         }
+      }
 
-        res.json(enrollment);
+      // Check if already enrolled
+      const existingEnrollment = await Enrollment.findOne({
+        where: { user_id, course_id }
+      });
+
+      if (existingEnrollment) {
+        await transaction.rollback();
+        return res.status(409).json({ error: 'Already enrolled in this course' });
+      }
+
+      const enrollment = await Enrollment.create(
+        { user_id, course_id },
+        { transaction }
+      );
+
+      await sendEnrollmentConfirmation(user.email, course.title);
+      await transaction.commit();
+
+      return res.status(201).json(this.formatResponse(enrollment));
     } catch (error) {
-        res.status(500).json({ error: 'Error fetching enrollment' });
+      await transaction.rollback();
+      return this.handleError(error, res);
     }
-};
+  }
 
-/**
- * Update an enrollment - Only accessible by admins and the enrolled student
- */
-exports.updateEnrollment = async (req, res) => {
-    const { id } = req.params;
-    const { status } = req.body;
-
+  async getEnrollments(req, res) {
     try {
-        const enrollment = await Enrollment.findByPk(id);
-        if (!enrollment) return res.status(404).json({ error: 'Enrollment not found' });
+      const { page = 1, limit = 10, status } = req.query;
+      const where = {};
 
-        // Check if the user is the enrolled student or an admin
-        if (req.user.privilege_id === 'student' && req.user.id !== enrollment.user_id) {
-            return res.status(403).json({ error: 'Insufficient privileges to update this enrollment' });
+      if (req.user.privilege_id === 'student') {
+        where.user_id = req.user.id;
+      }
+
+      if (status) where.status = status;
+
+      const { rows: enrollments, count } = await Enrollment.findAndCountAll({
+        where,
+        include: [
+          { model: User, as: 'user', attributes: ['username', 'email'] },
+          { model: Course, as: 'course', attributes: ['title', 'price'] }
+        ],
+        limit: parseInt(limit),
+        offset: (page - 1) * parseInt(limit),
+        order: [['enrolled_at', 'DESC']]
+      });
+
+      return res.json(this.formatResponse({
+        enrollments,
+        pagination: {
+          total: count,
+          pages: Math.ceil(count / limit),
+          currentPage: parseInt(page),
+          limit: parseInt(limit)
         }
-
-        // Update status directly
-        enrollment.status = status || enrollment.status;
-        await enrollment.save();
-
-        res.json(enrollment);
+      }));
     } catch (error) {
-        res.status(500).json({ error: 'Error updating enrollment' });
+      return this.handleError(error, res);
     }
-};
+  }
 
-/**
- * Delete an enrollment - Only accessible by admins
- */
-exports.deleteEnrollment = async (req, res) => {
-    if (req.user.privilege_id !== 'admin') {
-        return res.status(403).json({ error: 'Only admins can delete enrollments' });
-    }
-
-    const { id } = req.params;
-
+  async updateEnrollmentStatus(req, res) {
+    const transaction = await sequelize.transaction();
     try {
-        const enrollment = await Enrollment.findByPk(id);
-        if (!enrollment) return res.status(404).json({ error: 'Enrollment not found' });
+      const { id } = req.params;
+      const { status } = req.body;
 
-        await enrollment.destroy();
-        res.json({ message: 'Enrollment deleted successfully' });
+      const enrollment = await Enrollment.findByPk(id, {
+        include: [
+          { model: User, as: 'user' },
+          { model: Course, as: 'course' }
+        ]
+      });
+
+      if (!enrollment) {
+        await transaction.rollback();
+        return res.status(404).json({ error: 'Enrollment not found' });
+      }
+
+      if (!['active', 'completed', 'cancelled'].includes(status)) {
+        await transaction.rollback();
+        return res.status(400).json({ error: 'Invalid status' });
+      }
+
+      await enrollment.update({ status }, { transaction });
+      await transaction.commit();
+
+      return res.json(this.formatResponse(enrollment));
     } catch (error) {
-        res.status(500).json({ error: 'Error deleting enrollment' });
+      await transaction.rollback();
+      return this.handleError(error, res);
     }
-};
+  }
+}
+
+module.exports = new EnrollmentController();

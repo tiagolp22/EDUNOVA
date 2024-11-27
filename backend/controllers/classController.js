@@ -1,124 +1,82 @@
-const { Class, Course } = require('../config/db').models;
-const redisClient = require('../services/redisClient');
+const { Class, Course } = require("../models");
 
-/**
- * Create a new class - Only accessible by teachers and admins
- */
-exports.createClass = async (req, res) => {
-    if (req.user.privilege_id !== 'teacher' && req.user.privilege_id !== 'admin') {
-        return res.status(403).json({ error: 'Insufficient privileges' });
+const classController = {
+  /**
+   * Fetch all classes with optional course association
+   */
+  getClasses: async (req, res) => {
+    try {
+      const classes = await Class.findAll({
+        include: {
+          model: Course,
+          as: "course",
+          attributes: ["id", "title"],
+        },
+      });
+      res.status(200).json(classes);
+    } catch (error) {
+      console.error("Error fetching classes:", error);
+      res.status(500).json({ error: "Failed to fetch classes" });
     }
+  },
 
+  /**
+   * Create a new class
+   */
+  createClass: async (req, res) => {
     const { title, subtitle, description, video_path, course_id } = req.body;
 
     try {
-        const course = await Course.findByPk(course_id);
-        if (!course) return res.status(404).json({ error: 'Course not found' });
-
-        const newClass = await Class.create({ title, subtitle, description, video_path, course_id });
-
-        // Clear cache for classes list
-        await redisClient.del('all_classes');
-        res.status(201).json(newClass);
+      const newClass = await Class.create({
+        title,
+        subtitle,
+        description,
+        video_path,
+        course_id,
+      });
+      res.status(201).json(newClass);
     } catch (error) {
-        res.status(500).json({ error: 'Error creating class' });
+      console.error("Error creating class:", error);
+      res.status(500).json({ error: "Failed to create class" });
     }
-};
+  },
 
-/**
- * Retrieve all classes with caching - Accessible by all users
- */
-exports.getAllClasses = async (req, res) => {
-    const cacheKey = 'all_classes';
+  /**
+   * Update a class
+   */
+  updateClass: async (req, res) => {
+    const { id } = req.params;
+    const { title, subtitle, description, video_path } = req.body;
 
     try {
-        const cachedClasses = await redisClient.get(cacheKey);
-        if (cachedClasses) return res.json(JSON.parse(cachedClasses));
+      const classObj = await Class.findByPk(id);
+      if (!classObj) return res.status(404).json({ error: "Class not found" });
 
-        const classes = await Class.findAll({
-            include: [{ model: Course, as: 'course', attributes: ['id', 'title'] }],
-        });
-
-        await redisClient.set(cacheKey, JSON.stringify(classes), 'EX', 3600); // Cache for 1 hour
-        res.json(classes);
+      await classObj.update({ title, subtitle, description, video_path });
+      res.status(200).json(classObj);
     } catch (error) {
-        res.status(500).json({ error: 'Error fetching classes' });
+      console.error("Error updating class:", error);
+      res.status(500).json({ error: "Failed to update class" });
     }
-};
+  },
 
-/**
- * Retrieve a class by ID - Accessible by all users
- */
-exports.getClassById = async (req, res) => {
+  /**
+   * Delete a class
+   */
+  deleteClass: async (req, res) => {
     const { id } = req.params;
 
     try {
-        const classObj = await Class.findByPk(id, {
-            include: [{ model: Course, as: 'course', attributes: ['id', 'title'] }],
-        });
+      const classObj = await Class.findByPk(id);
+      if (!classObj) return res.status(404).json({ error: "Class not found" });
 
-        if (!classObj) return res.status(404).json({ error: 'Class not found' });
-
-        res.json(classObj);
+      await classObj.destroy();
+      res.status(200).json({ message: "Class deleted successfully" });
     } catch (error) {
-        res.status(500).json({ error: 'Error fetching class' });
+      console.error("Error deleting class:", error);
+      res.status(500).json({ error: "Failed to delete class" });
     }
+  },
 };
 
-/**
- * Update a class - Only accessible by teachers and admins
- */
-exports.updateClass = async (req, res) => {
-    if (req.user.privilege_id !== 'teacher' && req.user.privilege_id !== 'admin') {
-        return res.status(403).json({ error: 'Insufficient privileges' });
-    }
-
-    const { id } = req.params;
-    const { title, subtitle, description, video_path, course_id } = req.body;
-
-    try {
-        const classObj = await Class.findByPk(id);
-        if (!classObj) return res.status(404).json({ error: 'Class not found' });
-
-        if (course_id) {
-            const course = await Course.findByPk(course_id);
-            if (!course) return res.status(404).json({ error: 'Course not found' });
-        }
-
-        // Direct update for efficiency
-        await Class.update(
-            { title, subtitle, description, video_path, course_id },
-            { where: { id } }
-        );
-
-        // Clear cache for classes list
-        await redisClient.del('all_classes');
-        res.json({ message: 'Class updated successfully' });
-    } catch (error) {
-        res.status(500).json({ error: 'Error updating class' });
-    }
-};
-
-/**
- * Delete a class - Only accessible by teachers and admins
- */
-exports.deleteClass = async (req, res) => {
-    if (req.user.privilege_id !== 'teacher' && req.user.privilege_id !== 'admin') {
-        return res.status(403).json({ error: 'Insufficient privileges' });
-    }
-
-    const { id } = req.params;
-
-    try {
-        const classObj = await Class.findByPk(id);
-        if (!classObj) return res.status(404).json({ error: 'Class not found' });
-
-        await classObj.destroy();
-
-        // Clear cache for classes list
-        await redisClient.del('all_classes');
-        res.json({ message: 'Class deleted successfully' });
-    } catch (error) {
-        res.status(500).json({ error: 'Error deleting class' });
-    }
-};
+module.exports = classController;
