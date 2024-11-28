@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "assets/imgs/EduNova_logo.png";
 import signup from "assets/imgs/signup.png";
@@ -12,6 +12,12 @@ export default function Signin({ t }) {
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    // Clear auth data on component mount
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -38,7 +44,6 @@ export default function Signin({ t }) {
     try {
       setLoading(true);
       const response = await fetch("http://localhost:5000/api/auth/login", {
-        // URL corrigida
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -51,24 +56,29 @@ export default function Signin({ t }) {
 
       const data = await response.json();
 
-      console.log("ser: ", data.user);
-
       if (!response.ok) {
         throw new Error(data.error || "Invalid credentials");
       }
 
-      // Save token to the localStorage
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
+      // Verify response structure
+      if (!data.data?.token || !data.data?.user) {
+        throw new Error("Invalid server response format");
+      }
 
-      // Redirect after login
-      if (data.user.privilege_id === 1) {
+      // Store authentication data
+      const authToken = `Bearer ${data.data.token}`;
+      localStorage.setItem("token", authToken);
+      localStorage.setItem("user", JSON.stringify(data.data.user));
+
+      // Navigation based on user role
+      if (data.data.user.privilege?.name === "admin") {
         navigate("/admin");
       } else {
         navigate("/");
       }
     } catch (err) {
-      setError(err.message);
+      console.error("Login error:", err);
+      setError(err.message || "Login failed");
     } finally {
       setLoading(false);
     }
@@ -98,6 +108,7 @@ export default function Signin({ t }) {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
+                  autoComplete="email"
                 />
                 <input
                   className="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white mt-5"
@@ -106,6 +117,7 @@ export default function Signin({ t }) {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
+                  autoComplete="current-password"
                 />
 
                 <Button
