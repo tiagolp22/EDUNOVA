@@ -9,10 +9,10 @@ const createLimiter = require('../middleware/rateLimiter');
 router.use(auth);
 
 // User routes
-router.get('/all', authorize(['admin']), UserController.getAllUsers);
-router.get('/me', UserController.getCurrentUser);
-router.get('/:id', UserController.getUserById);
-router.put('/:id', validateUser, UserController.updateUser);
-router.delete('/:id', authorize(['admin']), UserController.deleteUser);
+router.get('/all', authorize(['admin']), UserController.getAllUsers.bind(UserController));
+router.get('/me', UserController.getCurrentUser.bind(UserController));
+router.get('/:id', UserController.getUserById.bind(UserController));
+router.put('/:id', validateUser, UserController.updateUser.bind(UserController));
+router.delete('/:id', authorize(['admin']), UserController.deleteUser.bind(UserController));
 
 module.exports = router;

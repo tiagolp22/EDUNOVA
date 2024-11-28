@@ -18,7 +18,7 @@ const authenticateToken = async (req, res, next) => {
       include: [{ 
         model: Privilege,
         as: 'privilege',
-        attributes: ['name', 'permissions']
+        attributes: ['name']
       }],
       attributes: { exclude: ['password'] }
     });

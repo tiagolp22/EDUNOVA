@@ -6,6 +6,12 @@ const { Op } = require('sequelize');
 class UserController extends BaseController {
   constructor() {
     super(User);
+    // Bind methods to the instance
+    this.getAllUsers = this.getAllUsers.bind(this);
+    this.getCurrentUser = this.getCurrentUser.bind(this);
+    this.getUserById = this.getUserById.bind(this);
+    this.updateUser = this.updateUser.bind(this);
+    this.deleteUser = this.deleteUser.bind(this);
   }
 
   async getAllUsers(req, res) {
