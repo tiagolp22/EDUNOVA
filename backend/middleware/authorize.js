@@ -1,4 +1,9 @@
-const authorize = (allowedRoles) => {
+/**
+ * Middleware to authorize users based on their privileges.
+ * @param {Array<string>} allowedRoles - Array of roles that are authorized.
+ * @returns {Function} - Express middleware function.
+ */
+const authorize = (allowedRoles = []) => {
   return async (req, res, next) => {
     try {
       if (!req.user) {
@@ -6,20 +11,25 @@ const authorize = (allowedRoles) => {
       }
 
       const userRole = req.user.privilege.name;
-      const userPermissions = req.user.privilege.permissions || [];
 
-      if (!allowedRoles.includes(userRole) && !userRole === 'admin') {
+      // Check if the user's role is included in the allowedRoles
+      const isAllowed = allowedRoles.includes(userRole) || userRole === 'admin';
+
+      if (!isAllowed) {
         return res.status(403).json({ error: 'Insufficient privileges' });
       }
 
-      // Verificar permissões específicas se fornecidas
-      if (Array.isArray(allowedRoles) && allowedRoles.some(role => typeof role === 'object')) {
-        const requiredPermissions = allowedRoles
-          .filter(role => typeof role === 'object')
-          .flatMap(role => role.permissions);
+      // If specific permissions are required (optional)
+      // Example: authorize([{ role: 'editor', permissions: ['edit_article'] }])
+      const permissionRoles = allowedRoles.filter(role => typeof role === 'object');
 
-        const hasRequiredPermissions = requiredPermissions.every(
-          permission => userPermissions.includes(permission)
+      if (permissionRoles.length > 0) {
+        const requiredPermissions = permissionRoles.flatMap(role => role.permissions);
+
+        const userPermissions = req.user.privilege.permissions || [];
+
+        const hasRequiredPermissions = requiredPermissions.every(permission =>
+          userPermissions.includes(permission)
         );
 
         if (!hasRequiredPermissions) {
@@ -29,7 +39,8 @@ const authorize = (allowedRoles) => {
 
       next();
     } catch (error) {
-      next(error);
+      console.error('Authorization error:', error);
+      return res.status(500).json({ error: 'Internal server error' });
     }
   };
 };

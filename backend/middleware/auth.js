@@ -2,12 +2,16 @@ const jwt = require('jsonwebtoken');
 const { User, Privilege } = require('../models');
 const redisClient = require('../services/redisClient');
 
+/**
+ * Middleware to authenticate JWT tokens.
+ * Attaches the authenticated user to the request object.
+ */
 const authenticateToken = async (req, res, next) => {
   try {
     const token = req.headers.authorization?.split(' ')[1];
     if (!token) return res.status(401).json({ error: 'Access token missing' });
 
-    // Verificar token na blacklist
+    // Check if token is blacklisted
     const isBlacklisted = await redisClient.get(`blacklist_${token}`);
     if (isBlacklisted) return res.status(401).json({ error: 'Token revoked' });
 
@@ -25,7 +29,12 @@ const authenticateToken = async (req, res, next) => {
 
     if (!user) return res.status(401).json({ error: 'User not found' });
 
-    req.user = user;
+    const userData = user.toJSON();
+
+    // Extract the English name for the privilege
+    userData.privilege.name = userData.privilege.name.en;
+
+    req.user = userData;
     next();
   } catch (error) {
     if (error.name === 'TokenExpiredError') {
