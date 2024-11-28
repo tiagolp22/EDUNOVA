@@ -1,9 +1,17 @@
+/**
+ * BaseController provides common utility methods for all controllers.
+ */
 class BaseController {
   constructor(model) {
     this.model = model;
   }
 
-  // Standard error handler
+  /**
+   * Standard error handler.
+   * @param {Error} error - The error object.
+   * @param {Object} res - The Express response object.
+   * @returns {Object} - JSON response with error details.
+   */
   handleError(error, res) {
     console.error(`Error: ${error.message}`, {
       stack: error.stack,
@@ -37,7 +45,12 @@ class BaseController {
     });
   }
 
-  // Standard response formatter
+  /**
+   * Standard response formatter.
+   * @param {Object} data - The data to include in the response.
+   * @param {string} message - Optional message to include.
+   * @returns {Object} - Formatted response object.
+   */
   formatResponse(data, message = "Success") {
     return {
       success: true,

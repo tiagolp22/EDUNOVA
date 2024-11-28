@@ -3,12 +3,21 @@ const { User, Privilege } = require('../models');
 const bcrypt = require('bcryptjs');
 const { Op } = require('sequelize');
 
+/**
+ * UserController handles all user-related operations.
+ */
 class UserController extends BaseController {
   constructor() {
     super(User);
   }
 
-  async getAllUsers(req, res) {
+  /**
+   * Retrieves all users, excluding their passwords.
+   * Only accessible by admin users.
+   * @param {Object} req - Express request object.
+   * @param {Object} res - Express response object.
+   */
+  getAllUsers = async (req, res) => {
     try {
       const users = await User.findAll({
         attributes: { exclude: ['password'] },
@@ -25,7 +34,12 @@ class UserController extends BaseController {
     }
   }
 
-  async getCurrentUser(req, res) {
+  /**
+   * Retrieves the currently authenticated user's information.
+   * @param {Object} req - Express request object.
+   * @param {Object} res - Express response object.
+   */
+  getCurrentUser = async (req, res) => {
     try {
       const user = await User.findByPk(req.user.id, {
         attributes: { exclude: ['password'] },
@@ -46,11 +60,18 @@ class UserController extends BaseController {
     }
   }
 
-  async getUserById(req, res) {
+  /**
+   * Retrieves a user by their ID.
+   * Accessible by admin users or the user themselves.
+   * @param {Object} req - Express request object.
+   * @param {Object} res - Express response object.
+   */
+  getUserById = async (req, res) => {
     try {
       const { id } = req.params;
 
-      if (req.user.privilege.name !== 'admin' && req.user.id !== parseInt(id)) {
+      // Authorization: Only admin or the user themselves can access
+      if (req.user.privilege.name !== 'admin' && req.user.id !== parseInt(id, 10)) {
         return res.status(403).json({ error: 'Unauthorized access' });
       }
 
@@ -73,13 +94,19 @@ class UserController extends BaseController {
     }
   }
 
-  async updateUser(req, res) {
+  /**
+   * Updates a user's information.
+   * Accessible by admin users or the user themselves.
+   * @param {Object} req - Express request object.
+   * @param {Object} res - Express response object.
+   */
+  updateUser = async (req, res) => {
     try {
       const { id } = req.params;
       const { username, email, password, birthday, name } = req.body;
 
-      // Check authorization
-      if (req.user.privilege.name !== 'admin' && req.user.id !== parseInt(id)) {
+      // Authorization: Only admin or the user themselves can update
+      if (req.user.privilege.name !== 'admin' && req.user.id !== parseInt(id, 10)) {
         return res.status(403).json({ error: 'Unauthorized to update this user' });
       }
 
@@ -114,10 +141,17 @@ class UserController extends BaseController {
     }
   }
 
-  async deleteUser(req, res) {
+  /**
+   * Deletes a user.
+   * Only accessible by admin users.
+   * @param {Object} req - Express request object.
+   * @param {Object} res - Express response object.
+   */
+  deleteUser = async (req, res) => {
     try {
       const { id } = req.params;
 
+      // Authorization: Only admin can delete users
       if (req.user.privilege.name !== 'admin') {
         return res.status(403).json({ error: 'Admin privileges required' });
       }
